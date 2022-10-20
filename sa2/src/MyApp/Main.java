@@ -4,15 +4,13 @@
  */
 package MyApp;
 
-import javax.swing.Timer;
-
 /**
  *
  * @author kenchan
  */
+
 public class Main extends javax.swing.JFrame {
     private int WIDTH = 700, HEIGHT = 700;
-    private Timer timer;    // handles the animation/redrawing of the game
     
     /**
      * Creates new form NewJFrame
@@ -41,7 +39,22 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
+<<<<<<< HEAD
+=======
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 600, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 600, Short.MAX_VALUE)
+        );
+
+>>>>>>> f7f38477300a570640b5607613bace704d19bd11
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
