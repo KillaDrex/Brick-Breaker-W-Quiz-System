@@ -4,9 +4,6 @@
  * and open the template in the editor.
  */
 package MyApp;
-
-import MyApp.GamePanel;
-
 /**
  *
  * @author killa

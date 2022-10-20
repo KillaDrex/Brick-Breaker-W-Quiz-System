@@ -19,6 +19,7 @@ import javax.swing.Timer;
 public class GamePanel extends javax.swing.JPanel implements ActionListener {
     // panel properties
     private int WIDTH = 700, HEIGHT = 700;
+    private int ballPosX = 350, ballPosY =500;
     
     // handles the redrawing of the game
     private Timer timer;
@@ -43,7 +44,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener {
         // draw background
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
-        
+        g.setColor(Color.red);
+        g.fillOval(ballPosX, ballPosY, 15, 15);    
         g.dispose();
     }
     
