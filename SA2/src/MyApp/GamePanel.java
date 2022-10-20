@@ -23,6 +23,9 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener {
     // handles the redrawing of the game
     private Timer timer;
     
+    // paddle
+    private int PADDLE_WIDTH = 75, PADDLE_HEIGHT = 25;
+    
     public GamePanel() {
         // properties
         setFocusable(true);
@@ -51,4 +54,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         repaint();
     }    
+    
+    private void newGame() {
+        
+    }
 }
