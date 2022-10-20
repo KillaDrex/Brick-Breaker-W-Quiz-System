@@ -4,12 +4,24 @@
  */
 package MyApp;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author kenchan
  */
-public class Main extends javax.swing.JFrame {
-
+public class Main extends javax.swing.JFrame implements KeyListener, ActionListener  {
+    private boolean isPlaying = false;
+    private int ballPosX = 300;
+    private int ballPosY = 550;
+    private int moveBallX = -1;
+    private int moveBallY = -2;
     /**
      * Creates new form NewJFrame
      */
@@ -27,21 +39,32 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 600, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 600, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+        
+    public void paint(Graphics g){
+        g.setColor(Color.red);
+        g.fillOval(ballPosX, ballPosY, 15, 15);
+        g.dispose();
+    }
+    
+  
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -76,6 +99,32 @@ public class Main extends javax.swing.JFrame {
                 new Main().setVisible(true);
             }
         });
+    }
+    @Override 
+    public void actionPerformed(ActionEvent e){
+        if(isPlaying){
+            ballPosX += moveBallX;
+            ballPosY += moveBallY;
+        }
+        repaint();
+    }
+    
+    
+    @Override
+    public void keyTyped(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_SPACE){
+            isPlaying = true;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
