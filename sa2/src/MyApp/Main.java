@@ -10,23 +10,17 @@ package MyApp;
  */
 
 public class Main extends javax.swing.JFrame {
+<<<<<<< HEAD
     private int WIDTH = 700, HEIGHT = 700;
     
+=======
+
+>>>>>>> parent of 9b40b0a (Added base preliminaries)
     /**
      * Creates new form NewJFrame
      */
     public Main() {
         initComponents();
-        
-        // initialize game
-        GamePanel game = new GamePanel();
-        add(game);
-
-        // frame properties
-        setTitle("Brick Breaker : Quiz Edition");
-        setResizable(false);
-        pack();
-        setLocationRelativeTo(null);
     }
 
     /**
@@ -54,7 +48,21 @@ public class Main extends javax.swing.JFrame {
             .addGap(0, 600, Short.MAX_VALUE)
         );
 
+<<<<<<< HEAD
 >>>>>>> f7f38477300a570640b5607613bace704d19bd11
+=======
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+
+>>>>>>> parent of 9b40b0a (Added base preliminaries)
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -93,6 +101,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
