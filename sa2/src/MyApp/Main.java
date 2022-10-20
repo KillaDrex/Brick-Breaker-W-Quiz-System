@@ -4,17 +4,31 @@
  */
 package MyApp;
 
+import javax.swing.Timer;
+
 /**
  *
  * @author kenchan
  */
 public class Main extends javax.swing.JFrame {
-
+    private int WIDTH = 700, HEIGHT = 700;
+    private Timer timer;    // handles the animation/redrawing of the game
+    
     /**
      * Creates new form NewJFrame
      */
     public Main() {
         initComponents();
+        
+        // initialize game
+        GamePanel game = new GamePanel();
+        add(game);
+
+        // frame properties
+        setTitle("Brick Breaker : Quiz Edition");
+        setResizable(false);
+        pack();
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -27,17 +41,6 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -77,7 +80,6 @@ public class Main extends javax.swing.JFrame {
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
