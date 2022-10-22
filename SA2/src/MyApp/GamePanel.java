@@ -266,7 +266,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     @Override
     public void mouseExited(MouseEvent e) {}
    
-    private void newGame() {
+    protected void newGame() {
         // end previous game
         ongoing = false;
         
