@@ -287,7 +287,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
      @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        //paddlePosX += e.getWheelRotation();
+        paddleVelX += e.getWheelRotation();
     }
     
     protected void newGame() {
