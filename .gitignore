@@ -1,0 +1,6 @@
+SA2/build/*
+SA2/nbproject/*
+SA2/test/*
+SA2/build.xml
+SA2/manifest.xml
+/SA2/dist/
