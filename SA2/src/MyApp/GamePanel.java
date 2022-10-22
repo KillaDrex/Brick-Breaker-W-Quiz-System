@@ -34,10 +34,13 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     // handles the redrawing of the game
     private Timer timer;
     
-    
+    // get the most recent mouse x coordinate ; used in paddle movement
+    private int prevMouseX;
+     
     // paddle
     private final int PADDLE_WIDTH = 95, PADDLE_HEIGHT = 15;
     private final int INITIAL_PADDLE_X_VEL = 9; // default paddle speed
+    private final int INITIAL_PADDLE_X_VEL_MWHEEL = 14; // default paddle speed using the mouse wheel; had to add this for ease 
     
     // center point of paddle // you only need to set paddle position y once
     private int paddlePosX, paddlePosY = HEIGHT - PADDLE_HEIGHT / 2;
@@ -46,7 +49,10 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private int paddleVelX = 0;
     
     private boolean[] isPaddleMoving = {false, false};
-        
+    
+    // paddle movement modes; 0=keys, 1=mouse, 2=mouse wheel
+    private int paddleMovementMode = 2;
+    
     // ball
     private final int BALL_RADIUS = 8;
     private final int[] INITIAL_BALL_VEL = {3, 4}; // default ball speed
@@ -115,6 +121,13 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         ballPosY += ballVelY;         
         
         paddlePosX += paddleVelX;
+        
+        // if the appropriate movement method chosen, mouse/mouse wheel has not moved, reset paddle velocity
+        if (paddleMovementMode == 1 || paddleMovementMode == 2) {
+            isPaddleMoving[0] = false;
+            isPaddleMoving[1] = false;
+            paddleVelX = 0;
+        }
         
         // check for any collisions
         
@@ -221,12 +234,15 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             ballVelX = new Random().nextInt(2) == 0 ? INITIAL_BALL_VEL[0] : -INITIAL_BALL_VEL[0];
             ballVelY = INITIAL_BALL_VEL[1];
             
-        // moving the paddle(left)-only if paddle was not already moving
-        } else if (!isPaddleMoving[0] && e.getKeyCode() == KeyEvent.VK_LEFT) {
-            movePaddleLeft();
-        // moving the paddle(right)-only if paddle was not already moving
-        } else if (!isPaddleMoving[1] && e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            movePaddleRight();
+        // FOR KEYS MODE ONLY: moving the paddle
+        } else if (paddleMovementMode == 0) {
+            // moving the paddle(left)-only if paddle was not already moving
+            if (!isPaddleMoving[0] && e.getKeyCode() == KeyEvent.VK_LEFT) {
+                movePaddleLeft();
+            // moving the paddle(right)-only if paddle was not already moving
+            } else if (!isPaddleMoving[1] && e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                movePaddleRight();
+            }
         }
     }
 
@@ -271,23 +287,39 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
    
     @Override
     public void mouseDragged(MouseEvent e) {
-        // don't move the paddle if game is not ongoing
-        if (!ongoing) return;      
+        // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
+        if (!ongoing || paddleMovementMode != 1) return;      
         
         // make the paddle follow the mouse
         paddlePosX = e.getX();    
     }
     @Override
     public void mouseMoved(MouseEvent e) {
-        // don't move the paddle if game is not ongoing
-        if (!ongoing) return;      
+        // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
+        if (!ongoing || paddleMovementMode != 1) return;       
         
-       // paddlePosX +;
+        // move the paddle depending on the direction the mouse was moved
+        if (e.getX() < prevMouseX) { // moved to the left
+            movePaddleLeft();
+        } else if (e.getX() > prevMouseX) { // moved to the right
+            movePaddleRight();
+        }
+                
+        // get coords
+        prevMouseX = e.getX();
     }
     
      @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        paddleVelX += e.getWheelRotation();
+        // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
+        if (!ongoing || paddleMovementMode != 2) return;             
+        
+        // move the paddle depending on the direction the wheel was scrolled
+        if (e.getWheelRotation() < 0) { // left paddle movement: scrolled negatively
+            movePaddleLeft();
+        } else { // right paddle movement: scrolled positively
+            movePaddleRight();
+        }
     }
     
     protected void newGame() {
@@ -355,14 +387,24 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     }
     
     private void movePaddleLeft() {
-        // updatde paddle velocity to move paddle to the left
-        paddleVelX += -INITIAL_PADDLE_X_VEL;
+        // update paddle velocity to move paddle to the left
+        if (paddleMovementMode != 2) {
+            paddleVelX += -INITIAL_PADDLE_X_VEL;
+        } else {
+            paddleVelX += -INITIAL_PADDLE_X_VEL_MWHEEL;
+        }
+        
         isPaddleMoving[0] = true;
     }
     
     private void movePaddleRight() {
-       // update paddle velocity to move paddle to the right
-       paddleVelX += INITIAL_PADDLE_X_VEL;
+        // update paddle velocity to move paddle to the left
+        if (paddleMovementMode != 2) {
+            paddleVelX += INITIAL_PADDLE_X_VEL;
+        } else {
+            paddleVelX += INITIAL_PADDLE_X_VEL_MWHEEL;
+        }
+        
        isPaddleMoving[1] = true;
     }
 }
