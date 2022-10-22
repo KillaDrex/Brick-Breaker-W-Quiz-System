@@ -51,7 +51,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private boolean[] isPaddleMoving = {false, false};
     
     // paddle movement modes; 0=keys, 1=mouse, 2=mouse wheel
-    private int paddleMovementMode = 2;
+    private int paddleMovementMode = 0;
     
     // ball
     private final int BALL_RADIUS = 8;
@@ -274,9 +274,6 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     }
     @Override
     public void mouseEntered(MouseEvent e) {
-        // change the mouse cursor ONCEwhen mouse enters screen (ONCE)
-        if (!getCursor().getName().equals("Crosshair Cursor") )
-            setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR) );
     }    
     @Override
     public void mousePressed(MouseEvent e) {}
@@ -341,6 +338,10 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         generateBricks();
     }
 
+    protected void setPaddleMovementMode(int mode) {
+        paddleMovementMode = mode;
+    }
+    
     private void generateBricks() {
         int bricks, rows, cols;
         int x1, y1, width, height; // rectangle that the brick structure forms
