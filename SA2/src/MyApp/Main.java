@@ -41,12 +41,20 @@ public class Main extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuItem1 = new javax.swing.JMenuItem();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         newGameButton = new javax.swing.JMenuItem();
         quitButton = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         menuAbout = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        PadControls = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
+
+        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -57,13 +65,14 @@ public class Main extends javax.swing.JFrame {
 
         menuFile.setBackground(new java.awt.Color(0, 0, 0));
         menuFile.setForeground(new java.awt.Color(255, 255, 255));
-        menuFile.setText("File");
+        menuFile.setText("App");
         menuFile.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
 
         newGameButton.setBackground(new java.awt.Color(0, 0, 0));
         newGameButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
         newGameButton.setForeground(new java.awt.Color(255, 255, 255));
         newGameButton.setText("New Game");
+        newGameButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         newGameButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newGameButtonActionPerformed(evt);
@@ -75,6 +84,7 @@ public class Main extends javax.swing.JFrame {
         quitButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
         quitButton.setForeground(new java.awt.Color(255, 255, 255));
         quitButton.setText("Quit");
+        quitButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         quitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 quitButtonActionPerformed(evt);
@@ -92,6 +102,7 @@ public class Main extends javax.swing.JFrame {
         menuAbout.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
         menuAbout.setForeground(new java.awt.Color(255, 255, 255));
         menuAbout.setText("About");
+        menuAbout.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         menuAbout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuAboutActionPerformed(evt);
@@ -101,6 +112,53 @@ public class Main extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu3);
 
+        jMenu4.setBackground(new java.awt.Color(0, 0, 0));
+        jMenu4.setForeground(new java.awt.Color(255, 255, 255));
+        jMenu4.setText("Settings");
+        jMenu4.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+
+        PadControls.setBackground(new java.awt.Color(0, 0, 0));
+        PadControls.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        PadControls.setForeground(new java.awt.Color(255, 255, 255));
+        PadControls.setText("Paddle Controls");
+        PadControls.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        PadControls.setOpaque(true);
+
+        jMenuItem2.setBackground(new java.awt.Color(0, 0, 0));
+        jMenuItem2.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        jMenuItem2.setForeground(new java.awt.Color(255, 255, 255));
+        jMenuItem2.setText("Use Keys");
+        jMenuItem2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        PadControls.add(jMenuItem2);
+
+        jMenuItem3.setBackground(new java.awt.Color(0, 0, 0));
+        jMenuItem3.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        jMenuItem3.setForeground(new java.awt.Color(255, 255, 255));
+        jMenuItem3.setText("Use Mouse");
+        jMenuItem3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        PadControls.add(jMenuItem3);
+
+        jMenuItem4.setBackground(new java.awt.Color(0, 0, 0));
+        jMenuItem4.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        jMenuItem4.setForeground(new java.awt.Color(255, 255, 255));
+        jMenuItem4.setText("Use Mouse Wheel");
+        jMenuItem4.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        PadControls.add(jMenuItem4);
+
+        jMenu4.add(PadControls);
+
+        jMenuBar1.add(jMenu4);
+
         setJMenuBar(jMenuBar1);
 
         pack();
@@ -108,6 +166,7 @@ public class Main extends javax.swing.JFrame {
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
         AboutPage about = new AboutPage(this, true);
+        about.setLocationRelativeTo(this);
         about.setVisible(true);
     }//GEN-LAST:event_menuAboutActionPerformed
 
@@ -118,6 +177,14 @@ public class Main extends javax.swing.JFrame {
     private void quitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitButtonActionPerformed
         System.exit(0);
     }//GEN-LAST:event_quitButtonActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -157,8 +224,14 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu PadControls;
     private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem menuAbout;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenuItem newGameButton;
