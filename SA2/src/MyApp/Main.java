@@ -4,6 +4,8 @@
  */
 package MyApp;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author killa
@@ -13,9 +15,12 @@ public class Main extends javax.swing.JFrame {
     /**
      * Creates new form Main
      */
+    private GamePanel game;
+    String abt;
+    
     public Main() {
         // initialize game
-        GamePanel game = new GamePanel();
+        game = new GamePanel();
         add(game);
         
         initComponents();
@@ -25,6 +30,7 @@ public class Main extends javax.swing.JFrame {
         setTitle("Brick Breaker : Quiz Edition");
         setLocationRelativeTo(null);
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -35,10 +41,83 @@ public class Main extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuBar1 = new javax.swing.JMenuBar();
+        menuFile = new javax.swing.JMenu();
+        newGameButton = new javax.swing.JMenuItem();
+        quitButton = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        menuAbout = new javax.swing.JMenuItem();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jMenuBar1.setBackground(new java.awt.Color(0, 0, 0));
+        jMenuBar1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        jMenuBar1.setForeground(new java.awt.Color(0, 0, 0));
+        jMenuBar1.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+
+        menuFile.setBackground(new java.awt.Color(0, 0, 0));
+        menuFile.setForeground(new java.awt.Color(255, 255, 255));
+        menuFile.setText("File");
+        menuFile.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+
+        newGameButton.setBackground(new java.awt.Color(0, 0, 0));
+        newGameButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        newGameButton.setForeground(new java.awt.Color(255, 255, 255));
+        newGameButton.setText("New Game");
+        newGameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newGameButtonActionPerformed(evt);
+            }
+        });
+        menuFile.add(newGameButton);
+
+        quitButton.setBackground(new java.awt.Color(0, 0, 0));
+        quitButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        quitButton.setForeground(new java.awt.Color(255, 255, 255));
+        quitButton.setText("Quit");
+        quitButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitButtonActionPerformed(evt);
+            }
+        });
+        menuFile.add(quitButton);
+
+        jMenuBar1.add(menuFile);
+
+        jMenu3.setForeground(new java.awt.Color(255, 255, 255));
+        jMenu3.setText("About");
+        jMenu3.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+
+        menuAbout.setBackground(new java.awt.Color(0, 0, 0));
+        menuAbout.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        menuAbout.setForeground(new java.awt.Color(255, 255, 255));
+        menuAbout.setText("About");
+        menuAbout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAboutActionPerformed(evt);
+            }
+        });
+        jMenu3.add(menuAbout);
+
+        jMenuBar1.add(jMenu3);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
+        AboutPage about = new AboutPage(this, true);
+        about.setVisible(true);
+    }//GEN-LAST:event_menuAboutActionPerformed
+
+    private void newGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameButtonActionPerformed
+        game.newGame();
+    }//GEN-LAST:event_newGameButtonActionPerformed
+
+    private void quitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitButtonActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_quitButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -51,7 +130,7 @@ public class Main extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Metal".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -72,10 +151,19 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void run() {
                 new Main().setVisible(true);
+                
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem menuAbout;
+    private javax.swing.JMenu menuFile;
+    private javax.swing.JMenuItem newGameButton;
+    private javax.swing.JMenuItem quitButton;
     // End of variables declaration//GEN-END:variables
+
 }
+

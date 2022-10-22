@@ -282,7 +282,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // don't move the paddle if game is not ongoing
         if (!ongoing) return;      
         
-        paddlePosX +;
+       // paddlePosX +;
     }
     
      @Override
