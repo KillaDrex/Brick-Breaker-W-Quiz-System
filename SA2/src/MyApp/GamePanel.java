@@ -22,6 +22,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Random;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 /**
@@ -58,6 +59,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     //Gameover
     private int isGameOver = 0;
     private int isRetry = 1;
+    private int totalBricks;
+
 
     // paddle movement modes; 0=keys, 1=mouse, 2=mouse wheel
     private int paddleMovementMode = 0;
@@ -77,6 +80,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private final int BRICK_WIDTH = 60, BRICK_HEIGHT = 30;
     private final int BRICK_SPACE = 3; // horizontal and vertical spaces between bricks
     private int[][] bricks;
+
     
     public GamePanel() {
         // properties
@@ -123,6 +127,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         if(liveCount == 0){
             gameOver(g);
         }
+
         dispText(g);
         
         g.dispose();
@@ -171,7 +176,6 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             ballVelY *= -1;
 
         }
-        
         // collision between ball and bricks
         for (int i = 0; i < bricks.length; i++) {
             // check if ball touches any of the edges of the bricks
@@ -203,14 +207,19 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                         ballVelY *= -1;
                 }
                 //delete the brick
-                bricks[i][0] = 0;
-                bricks[i][1] = 0;
+                bricks[i][0] = 0 - BRICK_WIDTH - BRICK_SPACE;
+                bricks[i][1] = 0 - BRICK_WIDTH - BRICK_SPACE;
+                totalBricks--;
                 Score++;
                 
 
                 // end loop
                 break;
             }
+            if(totalBricks == 0){
+                newGame();
+            }
+
         }
         
         // collisions between ball and walls
@@ -239,10 +248,18 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             ballPosY = HEIGHT - BALL_RADIUS;
 
             // game over
-                ongoing = false;
-                liveCount--;
-                initialPos();
+            ongoing = false;
             
+            if(liveCount > 0 ){
+                liveCount--;
+
+            }
+            if(liveCount > 0){
+               initialPos();
+            } else{
+                ballVelX = 0;
+                ballVelY = 0;
+            }        
         }
         
         // redraw the game
@@ -380,7 +397,6 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private void generateBricks() {
         int bricks, rows, cols;
         int x1, y1, width, height; // rectangle that the brick structure forms
-        
         // get a valid pair of bricks & rows where # of bricks is divisible by # of rows
         do {
             // pick # of bricks between 12-36
@@ -393,6 +409,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             if (bricks % rows == 0) {
                 break;
             }
+
         } while (true);
 
         // get # of cols from bricks
@@ -419,6 +436,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                 brickIndex++;
             }
         }
+        totalBricks = this.bricks.length;
+
     }
     
     private void movePaddleLeft() {
