@@ -162,8 +162,11 @@ public class Main extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void newGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameButtonActionPerformed
+
         game.newGame();
-        
+        game.Score = 0;
+        game.liveCount = 3;
+        game.isGameOver = 0;
     }//GEN-LAST:event_newGameButtonActionPerformed
 
     private void quitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitButtonActionPerformed

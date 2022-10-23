@@ -53,11 +53,11 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private boolean[] isPaddleMoving = {false, false};
     
     // Player lives
-    private int liveCount = 3;
+    public int liveCount = 3;
     // Score
-    private int Score;
+    public int Score;
     //Gameover
-    private int isGameOver = 0;
+    public int isGameOver = 0;
     private int isRetry = 1;
     private int totalBricks;
 
