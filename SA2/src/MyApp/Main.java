@@ -13,6 +13,8 @@ import javax.swing.JOptionPane;
  * @author killa
  */
 public class Main extends javax.swing.JFrame {
+    
+    
 
     /**
      * Creates new form Main
@@ -24,9 +26,7 @@ public class Main extends javax.swing.JFrame {
         // initialize game
         game = new GamePanel();
         add(game);
-        
         initComponents();
-        
         // frame properties
         setResizable(false);
         setTitle("Brick Breaker : Quiz Edition");
@@ -163,6 +163,7 @@ public class Main extends javax.swing.JFrame {
 
     private void newGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameButtonActionPerformed
         game.newGame();
+        
     }//GEN-LAST:event_newGameButtonActionPerformed
 
     private void quitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitButtonActionPerformed
@@ -200,6 +201,7 @@ public class Main extends javax.swing.JFrame {
         about.setVisible(true);
     }//GEN-LAST:event_aboutButtonActionPerformed
 
+    
     /**
      * @param args the command line arguments
      */
