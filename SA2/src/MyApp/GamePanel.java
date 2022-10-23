@@ -8,6 +8,7 @@ package MyApp;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -50,6 +51,14 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     private boolean[] isPaddleMoving = {false, false};
     
+    // Player lives
+    private int liveCount = 3;
+    // Score
+    private int Score;
+    //Gameover
+    private int isGameOver = 0;
+    private int isRetry = 1;
+
     // paddle movement modes; 0=keys, 1=mouse, 2=mouse wheel
     private int paddleMovementMode = 0;
     
@@ -77,7 +86,6 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         addMouseWheelListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
-        
         // start a new game
         newGame();
         
@@ -108,9 +116,15 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // draw bricks
         g.setColor(Color.WHITE);
         for (int i = 0; i < bricks.length; i++) {
+            if(bricks[i][0] != 0 && bricks[i][1] != 0){
             g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
+            }
         }
-
+        if(liveCount == 0){
+            gameOver(g);
+        }
+        dispText(g);
+        
         g.dispose();
     }
     
@@ -155,6 +169,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             
             // negate the vertical velocity of the ball
             ballVelY *= -1;
+
         }
         
         // collision between ball and bricks
@@ -169,6 +184,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
 
             // ball intersects with brick
             if (ballRect.intersects(brickRect) ) { 
+                
+
                 // update velocity depending on which brick side was hit by the ball
                 if (brickRect.contains(new Point(ballRect.x + ballRect.width -1, ballRect.y) ) ) {             
                         // ball hits left side of brick, negate horizontal velocity
@@ -185,6 +202,11 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                         // ball hits bottom side of brick, negate horizontal velocity
                         ballVelY *= -1;
                 }
+                //delete the brick
+                bricks[i][0] = 0;
+                bricks[i][1] = 0;
+                Score++;
+                
 
                 // end loop
                 break;
@@ -215,10 +237,14 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         } else if (ballPosY >= HEIGHT - BALL_RADIUS) { // bottom wall
              // ensure that ball always only touches the edge of the wall; this is a fault of the drawing scheme
             ballPosY = HEIGHT - BALL_RADIUS;
-            
+
             // game over
-            newGame();
+                ongoing = false;
+                liveCount--;
+                initialPos();
+            
         }
+        
         // redraw the game
         repaint();
     }    
@@ -227,6 +253,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     public void keyPressed(KeyEvent e) {
         // check if key was pressed for any of the following events: starting a game, moving the paddle,
         // starting a game
+        if(isGameOver == 0){
         if (!ongoing) {
             ongoing = true;
             
@@ -243,6 +270,21 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             } else if (!isPaddleMoving[1] && e.getKeyCode() == KeyEvent.VK_RIGHT) {
                 movePaddleRight();
             }
+        }
+        }
+        //Moving the cursor for Game Over Interface
+        if(isGameOver == 1 && e.getKeyCode() == KeyEvent.VK_DOWN){
+            isRetry = 0;
+        } else if(isGameOver == 1 && e.getKeyCode() == KeyEvent.VK_UP){
+            isRetry = 1;
+        }
+        if(isRetry == 1 && e.getKeyCode() == KeyEvent.VK_ENTER && isGameOver == 1){
+            liveCount = 3;
+            Score = 0;
+            isGameOver = 0;
+            newGame();
+        }else if(isRetry == 0 && e.getKeyCode() == KeyEvent.VK_ENTER && isGameOver == 1){
+            System.exit(0);
         }
     }
 
@@ -263,6 +305,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     @Override
     public void mouseClicked(MouseEvent e) {
+        if(isGameOver == 0){
         // left click to start the game
         if (!ongoing && e.getButton() == MouseEvent.BUTTON1)  {
             ongoing = true;
@@ -270,6 +313,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             // engage the ball & 50/50 if the ball starts with a positive or negative horizontal velocity
             ballVelX = new Random().nextInt(2) == 0 ? INITIAL_BALL_VEL[0] : -INITIAL_BALL_VEL[0];
             ballVelY = INITIAL_BALL_VEL[1];
+        }
         }
     }
     @Override
@@ -323,16 +367,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // end previous game
         ongoing = false;
         
-        // set paddle & ball initial location
-        paddlePosX = WIDTH / 2;
-        
-        int space = 15; // arbitrary number to put some space between ball and paddle
-        ballPosX = WIDTH / 2;
-        ballPosY = paddlePosY - PADDLE_HEIGHT / 2 - BALL_RADIUS - space;
-        
-        // ball is now stationary
-        ballVelX = 0;
-        ballVelY = 0;
+        initialPos();
         
         // generate bricks
         generateBricks();
@@ -380,7 +415,6 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             for (int c = 0; c < cols; c++) {
                 this.bricks[brickIndex][0] = x1 + (BRICK_WIDTH + BRICK_SPACE) * c;
                 this.bricks[brickIndex][1] = y1 + (BRICK_HEIGHT + BRICK_SPACE) * r;
-
                 // move to next brick
                 brickIndex++;
             }
@@ -407,5 +441,55 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         
        isPaddleMoving[1] = true;
+    }
+    private void initialPos(){
+        paddlePosX = WIDTH / 2;
+        
+        int space = 50; // arbitrary number to put some space between ball and paddle
+        ballPosX = WIDTH / 2;
+        ballPosY = paddlePosY - PADDLE_HEIGHT / 2 - BALL_RADIUS - space;
+        
+        // ball is now stationary
+        ballVelX = 0;
+        ballVelY = 0;
+    }
+    private void dispText(Graphics g){
+
+        g.setFont(new Font("Ariel", Font.BOLD, 24));
+        g.drawString("SCORE: " + Score, 15 , 30);
+        g.drawString("LIVES: " + liveCount, 585 , 30);
+    }
+
+    private void gameOver(Graphics g){
+        isGameOver = 1;
+        //Main
+        g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        g.setFont(new Font("Ariel", Font.BOLD, 36));
+        g.setColor(Color.WHITE);
+        g.drawString("GAME OVER",findCenter(g, "GAME OVER") , 320);
+                
+        g.setFont(new Font("Ariel", Font.BOLD, 24));
+        //Retry
+        g.drawString("Retry",findCenter(g, "Retry"), 400);
+
+        //Quit
+        g.drawString("Quit",findCenter(g, "Quit"), 450);
+        
+        //Cursor
+        if(isRetry == 1){
+            g.drawString(">", findCenter(g, "Retry") - 30, 400);
+
+        } else{
+            g.drawString(">", findCenter(g, "Retry") - 30, 450);
+
+        }
+
+    }
+    private int findCenter(Graphics g, String text){
+        int stringLen = (int)
+        g.getFontMetrics().getStringBounds(text, g).getWidth();
+        int start = WIDTH/2 - stringLen / 2;
+        return start;
     }
 }
