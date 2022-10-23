@@ -135,12 +135,19 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     @Override
     public void actionPerformed(ActionEvent e) {    // this method handles any updates to the game's state
+        // BUGFIX: holding down a paddle movement key while the level resets, moves the paddle while the game is stationary
+        // reset paddle velocity while game is not ongoing
+        if (!ongoing) {
+            paddleVelX = 0;
+        }
+        
         // update ball, paddle
         ballPosX += ballVelX;
         ballPosY += ballVelY;         
         
         paddlePosX += paddleVelX;
         
+                
         // if the appropriate movement method chosen, mouse/mouse wheel has not moved, reset paddle velocity
         if (paddleMovementMode == 1 || paddleMovementMode == 2) {
             isPaddleMoving[0] = false;
@@ -270,24 +277,17 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     public void keyPressed(KeyEvent e) {
         // check if key was pressed for any of the following events: starting a game, moving the paddle,
         // starting a game
-        if(isGameOver == 0){
-        if (!ongoing) {
-            ongoing = true;
-            
-            // engage the ball & 50/50 if the ball starts with a positive or negative horizontal velocity
-            ballVelX = new Random().nextInt(2) == 0 ? INITIAL_BALL_VEL[0] : -INITIAL_BALL_VEL[0];
-            ballVelY = INITIAL_BALL_VEL[1];
-            
-        // FOR KEYS MODE ONLY: moving the paddle
-        } else if (paddleMovementMode == 0) {
-            // moving the paddle(left)-only if paddle was not already moving
-            if (!isPaddleMoving[0] && e.getKeyCode() == KeyEvent.VK_LEFT) {
-                movePaddleLeft();
-            // moving the paddle(right)-only if paddle was not already moving
-            } else if (!isPaddleMoving[1] && e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                movePaddleRight();
+        if(isGameOver == 0){      
+            // FOR KEYS MODE ONLY: moving the paddle
+            if (ongoing && paddleMovementMode == 0) {
+                // moving the paddle(left)-only if paddle was not already moving
+                if (!isPaddleMoving[0] && e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    movePaddleLeft();
+                // moving the paddle(right)-only if paddle was not already moving
+                } else if (!isPaddleMoving[1] && e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    movePaddleRight();
+                }
             }
-        }
         }
         //Moving the cursor for Game Over Interface
         if(isGameOver == 1 && e.getKeyCode() == KeyEvent.VK_DOWN){
