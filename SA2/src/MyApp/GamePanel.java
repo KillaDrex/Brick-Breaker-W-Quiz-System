@@ -5,6 +5,7 @@
  */
 package MyApp;
 
+import MyLibs.Powerup;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -21,6 +22,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
@@ -80,6 +83,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private final int BRICK_SPACE = 10; // horizontal and vertical spaces between bricks
     private int[][] bricks;
 
+    private ArrayList<Powerup> powerups = new ArrayList<>();
+    
     
     public GamePanel() {
         // properties
@@ -127,6 +132,21 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
             }
         }
+        
+        // draw powerups
+        for(Powerup pow : powerups) {
+            // set color 
+            g.setColor(pow.getColor() );
+            
+            // draw powerup
+            if (pow.getName().equals("t2paddle") ) {
+                g.fillRect(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight());
+            } else {
+                g.fillOval(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight());
+            }
+        }
+        g.setColor(Color.WHITE);
+        
         if(liveCount == 0){
             gameOver(g);
         }
@@ -205,12 +225,45 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                 }                
                 
                 
+                // 20% chance for powerup (10% for x2 faster paddle, 10% for x2 longer paddle)
+                if (new Random().nextInt(20) < 10) {
+                   Powerup powerup = new Powerup() {
+                       @Override
+                       public void fall(){
+                          
+                       }
+                   };
+                   
+                   powerup.setName("t2paddle");
+                   powerup.setX(x1+ BRICK_WIDTH/2);
+                   powerup.setY(y1+ BRICK_HEIGHT/2);
+                   powerup.setWidth(15);
+                   powerup.setHeight(15);
+                   powerup.setColor(Color.blue);
+                   powerups.add(powerup);
+                } else {
+                   Powerup powerup = new Powerup() {
+                       @Override
+                       public void fall(){
+                           
+                       }
+                   };
+                   
+                   powerup.setName("t2paddlesize");
+                   powerup.setX(x1+ BRICK_WIDTH/2);
+                   powerup.setY(y1+ BRICK_HEIGHT/2);
+                   powerup.setWidth(15);
+                   powerup.setHeight(15);
+                   powerup.setColor(Color.yellow);
+                   
+                   powerups.add(powerup);                
+                }
+                
                 //delete the brick
                 bricks[i][0] = -BRICK_WIDTH;
                 bricks[i][1] = -BRICK_HEIGHT;                
                 totalBricks--;
                 Score++;
-                
 
                 // end loop
                 break;
