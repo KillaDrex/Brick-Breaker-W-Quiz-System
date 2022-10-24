@@ -5,6 +5,7 @@
  */
 package MyApp;
 
+import MyLibs.QuizSystem;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -80,6 +81,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private final int BRICK_SPACE = 10; // horizontal and vertical spaces between bricks
     private int[][] bricks;
 
+    
     
     public GamePanel() {
         // properties
