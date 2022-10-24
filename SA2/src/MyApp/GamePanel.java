@@ -5,6 +5,7 @@
  */
 package MyApp;
 
+import MyLibs.Powerup;
 import MyLibs.QuizSystem;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -22,6 +23,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
@@ -81,7 +84,9 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private final int BRICK_SPACE = 10; // horizontal and vertical spaces between bricks
     private int[][] bricks;
 
+    private ArrayList<Powerup> powerups = new ArrayList<>();
     
+    private int specialbricks;
     
     public GamePanel() {
         // properties
@@ -126,9 +131,30 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         g.setColor(Color.WHITE);
         for (int i = 0; i < bricks.length; i++) {
             if(bricks[i][0] != 0 && bricks[i][1] != 0){
-            g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
+                if (bricks[i][2] == 1) {
+                    g.setColor(Color.red);
+                } else if (bricks[i][2] == 2) {
+                    g.setColor(Color.yellow);
+                }
+                
+                g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
             }
         }
+
+        // draw powerups
+        for(Powerup pow : powerups) {
+            // set color 
+            g.setColor(pow.getColor() );
+            
+            // draw powerup
+            if (pow.getName().equals("t2paddle") ) {
+                g.fillRect(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight());
+            } else {
+                g.fillOval(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight());
+            }
+        }
+        g.setColor(Color.WHITE);
+        
         if(liveCount == 0){
             gameOver(g);
         }
@@ -207,12 +233,45 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                 }                
                 
                 
+                // 20% chance for powerup (10% for x2 faster paddle, 10% for x2 longer paddle)
+                if (new Random().nextInt(20) < 10) {
+                   Powerup powerup = new Powerup() {
+                       @Override
+                       public void fall(){
+                          
+                       }
+                   };
+                   
+                   powerup.setName("t2paddle");
+                   powerup.setX(x1+ BRICK_WIDTH/2);
+                   powerup.setY(y1+ BRICK_HEIGHT/2);
+                   powerup.setWidth(15);
+                   powerup.setHeight(15);
+                   powerup.setColor(Color.blue);
+                   powerups.add(powerup);
+                } else {
+                   Powerup powerup = new Powerup() {
+                       @Override
+                       public void fall(){
+                           
+                       }
+                   };
+                   
+                   powerup.setName("t2paddlesize");
+                   powerup.setX(x1+ BRICK_WIDTH/2);
+                   powerup.setY(y1+ BRICK_HEIGHT/2);
+                   powerup.setWidth(15);
+                   powerup.setHeight(15);
+                   powerup.setColor(Color.yellow);
+                   
+                   powerups.add(powerup);                
+                }
+                
                 //delete the brick
                 bricks[i][0] = -BRICK_WIDTH;
                 bricks[i][1] = -BRICK_HEIGHT;                
                 totalBricks--;
                 Score++;
-                
 
                 // end loop
                 break;
@@ -392,13 +451,15 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // get # of cols from bricks
         cols = bricks / rows;
         
-        // create bricks array ; x1, y1
-        this.bricks = new int[bricks][2];
+        // create bricks array ; x1, y1, special brick(0=normal, 1=quiz, 2=enlarge ball)
+        this.bricks = new int[bricks][3];
         
         // get width & height
         width = bricks / rows * BRICK_WIDTH + (bricks / rows - 1) * BRICK_SPACE;
         height = bricks / cols * BRICK_HEIGHT + (bricks / cols - 1) * BRICK_SPACE;
         
+       //specialbricks = new Random().nextInt(4); //0-5;
+       //bricks[i][2] = 1;
         // center rectangle horizontally on screen
         x1 = WIDTH / 2 - width / 2;
         y1 = 150; // arbitrary number // just to fit all possible bricks on screen and also give space to paddle
@@ -409,6 +470,16 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             for (int c = 0; c < cols; c++) {
                 this.bricks[brickIndex][0] = x1 + (BRICK_WIDTH + BRICK_SPACE) * c;
                 this.bricks[brickIndex][1] = y1 + (BRICK_HEIGHT + BRICK_SPACE) * r;
+                
+                // to be a special quiz brick (0.05% enlarge, 2.5% quiz, 97% normal)
+                int rand = new Random().nextInt(100);
+                if (rand < 0) {
+                    this.bricks[brickIndex][2] = 0;
+                } else if (rand < 96) {
+                    this.bricks[brickIndex][2] = 1;
+                } else {
+                    this.bricks[brickIndex][2] = 2;
+                }
                 // move to next brick
                 brickIndex++;
             }
