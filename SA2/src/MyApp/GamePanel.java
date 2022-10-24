@@ -86,7 +86,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
 
     private ArrayList<Powerup> powerups = new ArrayList<>();
     
-    
+    private int specialbricks;
     
     public GamePanel() {
         // properties
@@ -131,10 +131,16 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         g.setColor(Color.WHITE);
         for (int i = 0; i < bricks.length; i++) {
             if(bricks[i][0] != 0 && bricks[i][1] != 0){
-            g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
+                if (bricks[i][2] == 1) {
+                    g.setColor(Color.red);
+                } else if (bricks[i][2] == 2) {
+                    g.setColor(Color.yellow);
+                }
+                
+                g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
             }
         }
-        
+
         // draw powerups
         for(Powerup pow : powerups) {
             // set color 
@@ -445,13 +451,15 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // get # of cols from bricks
         cols = bricks / rows;
         
-        // create bricks array ; x1, y1
-        this.bricks = new int[bricks][2];
+        // create bricks array ; x1, y1, special brick(0=normal, 1=quiz, 2=enlarge ball)
+        this.bricks = new int[bricks][3];
         
         // get width & height
         width = bricks / rows * BRICK_WIDTH + (bricks / rows - 1) * BRICK_SPACE;
         height = bricks / cols * BRICK_HEIGHT + (bricks / cols - 1) * BRICK_SPACE;
         
+       //specialbricks = new Random().nextInt(4); //0-5;
+       //bricks[i][2] = 1;
         // center rectangle horizontally on screen
         x1 = WIDTH / 2 - width / 2;
         y1 = 150; // arbitrary number // just to fit all possible bricks on screen and also give space to paddle
@@ -462,6 +470,16 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             for (int c = 0; c < cols; c++) {
                 this.bricks[brickIndex][0] = x1 + (BRICK_WIDTH + BRICK_SPACE) * c;
                 this.bricks[brickIndex][1] = y1 + (BRICK_HEIGHT + BRICK_SPACE) * r;
+                
+                // to be a special quiz brick (0.05% enlarge, 2.5% quiz, 97% normal)
+                int rand = new Random().nextInt(100);
+                if (rand < 0) {
+                    this.bricks[brickIndex][2] = 0;
+                } else if (rand < 96) {
+                    this.bricks[brickIndex][2] = 1;
+                } else {
+                    this.bricks[brickIndex][2] = 2;
+                }
                 // move to next brick
                 brickIndex++;
             }
