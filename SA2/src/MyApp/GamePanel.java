@@ -6,6 +6,7 @@
 package MyApp;
 
 import MyLibs.Powerup;
+import MyLibs.QuizSystem;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -84,6 +85,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private int[][] bricks;
 
     private ArrayList<Powerup> powerups = new ArrayList<>();
+    
     
     
     public GamePanel() {

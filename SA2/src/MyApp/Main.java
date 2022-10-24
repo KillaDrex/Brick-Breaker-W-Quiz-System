@@ -7,6 +7,8 @@ package MyApp;
 import MyLibs.AboutPage;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
@@ -57,6 +59,8 @@ public class Main extends javax.swing.JFrame {
         PadControls = new javax.swing.JMenu();
         jRadioButtonMenuItem1 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem3 = new javax.swing.JRadioButtonMenuItem();
+        jmQuiz = new javax.swing.JMenu();
+        jmiChooseFile = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -141,7 +145,6 @@ public class Main extends javax.swing.JFrame {
 
         jRadioButtonMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, 0));
         buttonGroup1.add(jRadioButtonMenuItem1);
-        jRadioButtonMenuItem1.setSelected(true);
         jRadioButtonMenuItem1.setText("Use Keys");
         jRadioButtonMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -163,6 +166,24 @@ public class Main extends javax.swing.JFrame {
         jMenu4.add(PadControls);
 
         jMenuBar1.add(jMenu4);
+
+        jmQuiz.setBackground(new java.awt.Color(0, 0, 0));
+        jmQuiz.setForeground(new java.awt.Color(255, 255, 255));
+        jmQuiz.setText("Quiz");
+        jmQuiz.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+
+        jmiChooseFile.setBackground(new java.awt.Color(0, 0, 0));
+        jmiChooseFile.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        jmiChooseFile.setForeground(new java.awt.Color(255, 255, 255));
+        jmiChooseFile.setText("Choose File");
+        jmiChooseFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmiChooseFileActionPerformed(evt);
+            }
+        });
+        jmQuiz.add(jmiChooseFile);
+
+        jMenuBar1.add(jmQuiz);
 
         setJMenuBar(jMenuBar1);
 
@@ -207,6 +228,18 @@ public class Main extends javax.swing.JFrame {
     private void helpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_helpActionPerformed
+
+    private void jmiChooseFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiChooseFileActionPerformed
+        // TODO add your handling code here:
+        JFileChooser jfc = new JFileChooser();
+        jfc.setCurrentDirectory(new File("src\\Assets"));
+        int fileSelected = jfc.showOpenDialog(this);
+        
+//        if (fileSelected == JFileChooser.APPROVE_OPTION){
+//            String fileLocation = (jfc.getSelectedFile().);
+//            System.out.println(fileLocation);
+//        }
+    }//GEN-LAST:event_jmiChooseFileActionPerformed
 
     
     /**
@@ -257,6 +290,8 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenu jmQuiz;
+    private javax.swing.JMenuItem jmiChooseFile;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenuItem newGameButton;
     private javax.swing.JMenuItem quitButton;
