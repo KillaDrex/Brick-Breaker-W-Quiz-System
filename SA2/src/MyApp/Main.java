@@ -5,8 +5,9 @@
 package MyApp;
 
 import MyLibs.AboutPage;
+import MyLibs.HelpPage;
+import MyLibs.QuizSystem;
 import java.awt.Cursor;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -16,9 +17,6 @@ import javax.swing.JOptionPane;
  * @author Group 4
  */
 public class Main extends javax.swing.JFrame {
-    
-    
-
     /**
      * Creates new form Main
      */
@@ -29,14 +27,17 @@ public class Main extends javax.swing.JFrame {
         // initialize game
         game = new GamePanel();
         add(game);
+        
         initComponents();
+        
         // frame properties
         setResizable(false);
         setTitle("Brick Breaker : Quiz Edition");
         setLocationRelativeTo(null);
+         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/assets/icon/ball.png")).getImage()
+        );
     }
     
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -46,23 +47,25 @@ public class Main extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jMenuItem1 = new javax.swing.JMenuItem();
         buttonGroup1 = new javax.swing.ButtonGroup();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
-        newGameButton = new javax.swing.JMenuItem();
-        quitButton = new javax.swing.JMenuItem();
-        jSeparator1 = new javax.swing.JPopupMenu.Separator();
         aboutButton = new javax.swing.JMenuItem();
         help = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        newGameButton = new javax.swing.JMenuItem();
+        quitButton = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
+        epowerups = new javax.swing.JCheckBoxMenuItem();
+        equiz = new javax.swing.JCheckBoxMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         PadControls = new javax.swing.JMenu();
         jRadioButtonMenuItem1 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem3 = new javax.swing.JRadioButtonMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        eBrickGuide = new javax.swing.JCheckBoxMenuItem();
         jmQuiz = new javax.swing.JMenu();
         jmiChooseFile = new javax.swing.JMenuItem();
-
-        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -76,34 +79,6 @@ public class Main extends javax.swing.JFrame {
         menuFile.setText("App");
         menuFile.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
         menuFile.setOpaque(true);
-
-        newGameButton.setBackground(new java.awt.Color(0, 0, 0));
-        newGameButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
-        newGameButton.setForeground(new java.awt.Color(255, 255, 255));
-        newGameButton.setText("New Game");
-        newGameButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
-        newGameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newGameButtonActionPerformed(evt);
-            }
-        });
-        menuFile.add(newGameButton);
-
-        quitButton.setBackground(new java.awt.Color(0, 0, 0));
-        quitButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
-        quitButton.setForeground(new java.awt.Color(255, 255, 255));
-        quitButton.setText("Quit");
-        quitButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
-        quitButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                quitButtonActionPerformed(evt);
-            }
-        });
-        menuFile.add(quitButton);
-
-        jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
-        jSeparator1.setOpaque(true);
-        menuFile.add(jSeparator1);
 
         aboutButton.setBackground(new java.awt.Color(0, 0, 0));
         aboutButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
@@ -129,12 +104,67 @@ public class Main extends javax.swing.JFrame {
         });
         menuFile.add(help);
 
+        jSeparator1.setBackground(new java.awt.Color(0, 0, 0));
+        jSeparator1.setOpaque(true);
+        menuFile.add(jSeparator1);
+
+        newGameButton.setBackground(new java.awt.Color(0, 0, 0));
+        newGameButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        newGameButton.setForeground(new java.awt.Color(255, 255, 255));
+        newGameButton.setText("New Game");
+        newGameButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        newGameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newGameButtonActionPerformed(evt);
+            }
+        });
+        menuFile.add(newGameButton);
+
+        quitButton.setBackground(new java.awt.Color(0, 0, 0));
+        quitButton.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        quitButton.setForeground(new java.awt.Color(255, 255, 255));
+        quitButton.setText("Quit");
+        quitButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        quitButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitButtonActionPerformed(evt);
+            }
+        });
+        menuFile.add(quitButton);
+
         jMenuBar1.add(menuFile);
 
         jMenu4.setBackground(new java.awt.Color(0, 0, 0));
         jMenu4.setForeground(new java.awt.Color(255, 255, 255));
         jMenu4.setText("Settings");
         jMenu4.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+
+        epowerups.setBackground(new java.awt.Color(0, 0, 0));
+        epowerups.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        epowerups.setForeground(new java.awt.Color(255, 255, 255));
+        epowerups.setSelected(true);
+        epowerups.setText("Enable Powerups");
+        epowerups.setOpaque(true);
+        epowerups.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                epowerupsActionPerformed(evt);
+            }
+        });
+        jMenu4.add(epowerups);
+
+        equiz.setBackground(new java.awt.Color(0, 0, 0));
+        equiz.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        equiz.setForeground(new java.awt.Color(255, 255, 255));
+        equiz.setText("Enable Quiz");
+        equiz.setEnabled(false);
+        equiz.setOpaque(true);
+        equiz.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                equizActionPerformed(evt);
+            }
+        });
+        jMenu4.add(equiz);
+        jMenu4.add(jSeparator2);
 
         PadControls.setBackground(new java.awt.Color(0, 0, 0));
         PadControls.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -144,7 +174,11 @@ public class Main extends javax.swing.JFrame {
         PadControls.setOpaque(true);
 
         jRadioButtonMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, 0));
+        jRadioButtonMenuItem1.setBackground(new java.awt.Color(0, 0, 0));
         buttonGroup1.add(jRadioButtonMenuItem1);
+        jRadioButtonMenuItem1.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        jRadioButtonMenuItem1.setForeground(new java.awt.Color(255, 255, 255));
+        jRadioButtonMenuItem1.setSelected(true);
         jRadioButtonMenuItem1.setText("Use Keys");
         jRadioButtonMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -154,7 +188,10 @@ public class Main extends javax.swing.JFrame {
         PadControls.add(jRadioButtonMenuItem1);
 
         jRadioButtonMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, 0));
+        jRadioButtonMenuItem3.setBackground(new java.awt.Color(0, 0, 0));
         buttonGroup1.add(jRadioButtonMenuItem3);
+        jRadioButtonMenuItem3.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        jRadioButtonMenuItem3.setForeground(new java.awt.Color(255, 255, 255));
         jRadioButtonMenuItem3.setText("Use Mouse Wheel");
         jRadioButtonMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -164,6 +201,19 @@ public class Main extends javax.swing.JFrame {
         PadControls.add(jRadioButtonMenuItem3);
 
         jMenu4.add(PadControls);
+        jMenu4.add(jSeparator3);
+
+        eBrickGuide.setBackground(new java.awt.Color(0, 0, 0));
+        eBrickGuide.setFont(new java.awt.Font("Monospaced", 0, 15)); // NOI18N
+        eBrickGuide.setForeground(new java.awt.Color(255, 255, 255));
+        eBrickGuide.setText("Enable Brick Guide");
+        eBrickGuide.setOpaque(true);
+        eBrickGuide.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eBrickGuideActionPerformed(evt);
+            }
+        });
+        jMenu4.add(eBrickGuide);
 
         jMenuBar1.add(jMenu4);
 
@@ -196,6 +246,9 @@ public class Main extends javax.swing.JFrame {
         game.Score = 0;
         game.liveCount = 3;
         game.isGameOver = 0;
+        game.totalCorrectAnswers = 0;
+        game.powerupsTaken = 0; 
+        game.questionsTaken = 0;        
     }//GEN-LAST:event_newGameButtonActionPerformed
 
     private void quitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitButtonActionPerformed
@@ -226,7 +279,10 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_aboutButtonActionPerformed
 
     private void helpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpActionPerformed
-        // TODO add your handling code here:
+        HelpPage help = new HelpPage(this, true);
+        help.setLocationRelativeTo(this);
+        help.setResizable(false);
+        help.setVisible(true);
     }//GEN-LAST:event_helpActionPerformed
 
     private void jmiChooseFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiChooseFileActionPerformed
@@ -240,9 +296,62 @@ public class Main extends javax.swing.JFrame {
             String fileLocationPreSub = (jfc.getSelectedFile().getName());
             String fileLocationPostSub = fileLocationPreSub.substring(0, fileLocationPreSub.length()-4);
             JOptionPane.showMessageDialog(this,fileLocationPreSub+" has been chosen.");
-            //TODO: READ TEXT FILE TO QS IN GAMEPANEL
+
+            // update the quiz system with the selected file
+            QuizSystem qs = game.getQs();
+            
+            qs.getTextFile(jfc.getSelectedFile().toString() );
+            
+            // enable quiz system check box
+            equiz.setEnabled(true);
         }
     }//GEN-LAST:event_jmiChooseFileActionPerformed
+
+    private void epowerupsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_epowerupsActionPerformed
+        if (game.isEnablePowerups() ) {
+            game.setEnablePowerups(false);
+            // prompt
+            JOptionPane.showMessageDialog(this, "Powerups were disabled.");            
+        }
+        else {
+            game.setEnablePowerups(true);
+            // prompt
+            JOptionPane.showMessageDialog(this, "Powerups were enabled.");
+        }
+    }//GEN-LAST:event_epowerupsActionPerformed
+
+    private void equizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_equizActionPerformed
+        // TODO add your handling code here:
+        if (game.isEnableQuizSystem()) {
+            game.setEnableQuizSystem(false);
+            // prompt
+            JOptionPane.showMessageDialog(this, "Quiz system was disabled.");            
+        }
+        else {
+            game.setEnableQuizSystem(true);
+            
+            // prompt
+            JOptionPane.showMessageDialog(this, "Quiz system was enabled.");   
+            
+            // prompt
+            JOptionPane.showMessageDialog(this, "Bear in mind that you'll have to start a new game \nor progress to a new level"
+                    + " for the quiz to be applied.");              
+        }        
+    }//GEN-LAST:event_equizActionPerformed
+
+    private void eBrickGuideActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eBrickGuideActionPerformed
+        if (game.isEnableBrickGuide()) {
+            game.setEnableBrickGuide(false);
+            // prompt
+            JOptionPane.showMessageDialog(this, "Brick guide was disabled.");            
+        }
+        else {
+            game.setEnableBrickGuide(true);
+            
+            // prompt
+            JOptionPane.showMessageDialog(this, "Brick guide was enabled.");              
+        }
+    }//GEN-LAST:event_eBrickGuideActionPerformed
 
     
     /**
@@ -286,13 +395,17 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu PadControls;
     private javax.swing.JMenuItem aboutButton;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JCheckBoxMenuItem eBrickGuide;
+    private javax.swing.JCheckBoxMenuItem epowerups;
+    private javax.swing.JCheckBoxMenuItem equiz;
     private javax.swing.JMenuItem help;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JMenu jmQuiz;
     private javax.swing.JMenuItem jmiChooseFile;
     private javax.swing.JMenu menuFile;

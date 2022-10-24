@@ -8,11 +8,9 @@ package MyApp;
 import MyLibs.Powerup;
 import MyLibs.QuizSystem;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,10 +22,11 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.TimerTask;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
 /**
@@ -36,7 +35,7 @@ import javax.swing.Timer;
  */
 public class GamePanel extends javax.swing.JPanel implements ActionListener, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     // panel properties
-    private final int WIDTH = 700, HEIGHT = 700;
+    public final int WIDTH = 700, HEIGHT = 700;
 
     // handles the redrawing of the game
     private Timer timer;
@@ -68,13 +67,13 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private int isRetry = 1;
     private int totalBricks;
 
-
     // paddle movement modes; 0=keys, 1=mouse wheel
     private int paddleMovementMode = 0;
     
     // ball
-    private final int BALL_RADIUS = 12;
+    private final int INITIAL_BALL_RADIUS = 12;
     private final int[] INITIAL_BALL_VEL = {1, -2}; // default ball speed
+    private int ballRadius = INITIAL_BALL_RADIUS;
     private int ballPosX, ballPosY; // center point of ball
     private int ballVelX = 0, ballVelY = 0; // velocity is tied to the game's redraw time
     
@@ -89,8 +88,29 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
 
     private ArrayList<Powerup> powerups = new ArrayList<>();
     
-    private QuizSystem qs;
+    private QuizSystem qs = new QuizSystem();
 
+    // flags
+    private boolean enablePowerups = true, enableQuizSystem = false;
+    
+    // brick guide
+    private boolean enableBrickGuide = false;
+    private Color brickColor = Color.WHITE;
+    private String brickText = "";
+    
+    // correct answers for a single game session
+    private int correctAnswers = 0;
+    
+    // next level
+    private int isNextLevel;
+    private int go;
+    
+    // popup menu
+    private JPopupMenu popupMenu;
+    
+    // current statistics variables
+    protected int totalCorrectAnswers, powerupsTaken, questionsTaken;
+    
     public GamePanel() {
         // properties
         addKeyListener(this);
@@ -100,16 +120,62 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         
+        // create a popup menu
+        popupMenu = new JPopupMenu();
+        JMenuItem statsItem = new JMenuItem("Current Statistics");
+        statsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Total Score:" + Score + "\n" + "Total Questions Taken:" + questionsTaken + "\n" + 
+                        "Total Correct Answers:" + totalCorrectAnswers + "\n" + 
+                        "Powerups Taken:" + powerupsTaken + "\n", "Overall Statistics for Current Session", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        JMenuItem endGameItem = new JMenuItem("End Game");
+        endGameItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // go to game over
+                liveCount = 0;
+            }
+        });
+        popupMenu.add(statsItem);
+        popupMenu.add(endGameItem);
+        
         // start a new game
         newGame();
         
-        // redraws the game every 17 milliseconds
-        timer = new Timer(17, this);
+        // redraws the game every 20 milliseconds
+        timer = new Timer(20, this);
         timer.start();
     }
 
     public QuizSystem getQs() {
         return qs;
+    }
+
+    public boolean isEnablePowerups() {
+        return enablePowerups;
+    }
+
+    public void setEnablePowerups(boolean enablePowerups) {
+        this.enablePowerups = enablePowerups;
+    }
+
+    public boolean isEnableQuizSystem() {
+        return enableQuizSystem;
+    }
+
+    public void setEnableQuizSystem(boolean enableQuizSystem) {
+        this.enableQuizSystem = enableQuizSystem;
+    }
+
+    public boolean isEnableBrickGuide() {
+        return enableBrickGuide;
+    }
+
+    public void setEnableBrickGuide(boolean enableBrickGuide) {
+        this.enableBrickGuide = enableBrickGuide;
     }
     
     @Override
@@ -120,7 +186,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     @Override
     public void paint(Graphics g) {
         // draw background
-        g.setColor(Color.BLACK);
+        g.setColor(Color.black);
         g.fillRect(0, 0, WIDTH, HEIGHT);
         
         if (!ongoing && isGameOver != 1) { // if game has not started, draw the helper text; don't show text in game-over screen
@@ -133,20 +199,12 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         // draw ball
         g.setColor(Color.RED);
-        g.fillOval(ballPosX - BALL_RADIUS, ballPosY - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2);    
+        g.fillOval(ballPosX - ballRadius, ballPosY - ballRadius, ballRadius * 2, ballRadius * 2);    
 
         // draw bricks
         g.setColor(Color.WHITE);
         for (int i = 0; i < bricks.length; i++) {
             if(bricks[i][0] != -BRICK_WIDTH && bricks[i][1] != -BRICK_HEIGHT){
-//                if (bricks[i][2] == 1) { TEMP
-//                    g.setColor(Color.red);
-//                } else if (bricks[i][2] == 2) {
-//                    g.setColor(Color.yellow);
-//                } else {
-//                    g.setColor(Color.WHITE);
-//                }
-                
                 g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
             }
         }
@@ -165,11 +223,27 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         
         if(liveCount == 0){
+            totalCorrectAnswers = 0;
+            powerupsTaken = 0;
+            questionsTaken = 0;
             gameOver(g);
         }
 
+        // transition to the next level if no more bricks
+        // if there are any powerups falling, wait for them to drop or be absorbed before transitioning to next level
+        if(totalBricks == 0 && powerups.isEmpty() ){
+            nextLevel(g);
+        }
+        
         g.setColor(Color.WHITE);
         dispText(g);
+        
+        // draw brick guide, if enabled
+        if (enableBrickGuide) {
+            g.setColor(brickColor);
+            g.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+            g.drawString(brickText,  WIDTH - g.getFontMetrics().stringWidth(brickText) , HEIGHT - g.getFontMetrics(g.getFont()).getHeight());
+        }
         
         g.dispose();
     }
@@ -183,8 +257,11 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         
         // update ball, paddle
-        ballPosX += ballVelX;
-        ballPosY += ballVelY;         
+        // make the ball stationary in next level menu
+        if (isNextLevel != 1) {
+            ballPosX += ballVelX;
+            ballPosY += ballVelY;         
+        }
         
         paddlePosX += paddleVelX;
         
@@ -214,11 +291,11 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         
         // collision between paddle and ball
-        if (ballPosY >= paddlePosY - paddleHeight / 2 - BALL_RADIUS && 
+        if (ballPosY >= paddlePosY - paddleHeight / 2 - ballRadius && 
                 ballPosX >= paddlePosX -  paddleWidth / 2 && ballPosX <= paddlePosX + paddleWidth / 2) {
             
             // ensure that ball will not go over the edge of the paddle; this is a fault of the drawing scheme
-            ballPosY = paddlePosY - paddleHeight / 2 - BALL_RADIUS;
+            ballPosY = paddlePosY - paddleHeight / 2 - ballRadius;
             
             // negate the vertical velocity of the ball
             ballVelY *= -1;
@@ -231,7 +308,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             int y1 = bricks[i][1];
 
             // rectangles/hitboxes of ball and brick
-            Rectangle ballRect = new Rectangle(ballPosX - BALL_RADIUS, ballPosY - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2);
+            Rectangle ballRect = new Rectangle(ballPosX - ballRadius, ballPosY - ballRadius, ballRadius * 2, ballRadius * 2);
             Rectangle brickRect = new Rectangle(x1, y1, BRICK_WIDTH, BRICK_HEIGHT);
 
             // ball intersects with brick
@@ -242,85 +319,137 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                     ballVelY *= -1;
                 }                
                 
+                // check if it is a special brick, and act appropriately
+                // quiz brick does not work if quiz is not enabled
+                if (bricks[i][2] == 1 && enableQuizSystem) {    // quiz brick
+                    // get question and answer from qs
+                    String[] arr = qs.randomQuestion();
+                    
+                    String userAnswer = JOptionPane.showInputDialog(this, arr[0]);
+                    
+                    if (userAnswer == null) {
+                         // show prompt
+                        JOptionPane.showMessageDialog(this, "You ran away! You get a -1 in your score!", "Coward!", JOptionPane.WARNING_MESSAGE);
+                        
+                        // subtract from score
+                        Score -= 1;                       
+                    } else if (userAnswer.toLowerCase().equals(arr[1].toLowerCase() ) ) { // correct answer
+                        // show prompt
+                        JOptionPane.showMessageDialog(this, "You get a +2 in your score!", "Correct!", JOptionPane.INFORMATION_MESSAGE);
+                        
+                        // add to score
+                        Score += 2;
+                        
+                        // increment correct answers
+                        correctAnswers++;
+                        totalCorrectAnswers++;
+                    } else {
+                        // show prompt
+                        JOptionPane.showMessageDialog(this, "You get a -4 in your score!", "Incorrect!", JOptionPane.ERROR_MESSAGE);
+                        System.out.println(Score);
+                        // subtract from score
+                        Score -= 4;
+                        
+                    }
+                    
+                    // increment questions taken
+                    questionsTaken++;
+                } else if (bricks[i][2] == 2 && ballRadius == INITIAL_BALL_RADIUS) { // enlargen ball brick;dont stack
+                    int a = 5;
+                    ballRadius += a;
+
+                    // after 20 seconds, revert the size
+                    powTimer.schedule(new TimerTask(){
+                        @Override
+                        public void run() {
+                            // revert effect, only if effect was not reverted prior (dying/new game)
+                            if (ballRadius != INITIAL_BALL_RADIUS)
+                                ballRadius -= a;
+                        }
+                    }, 20000);      
+                }
+                
                 // 20% chance for powerup (10% for x2 longer paddle, 10% for x2 faster paddle)
-                int rand = new Random().nextInt(100);
-                if (rand < 10) {
-                   Powerup powerup = new Powerup();
-                   
-                   // initialize the powerup properties
-                   powerup.setName("t2paddle");
-                   powerup.setX(x1+ BRICK_WIDTH/2);
-                   powerup.setY(y1+ BRICK_HEIGHT/2);
-                   powerup.setWidth(15);
-                   powerup.setHeight(15);
-                   powerup.setColor(Color.blue);
-                   
-                   powerups.add(powerup);
-                } else if (rand < 20) {
-                   Powerup powerup = new Powerup();
-                   
-                   // initialize the powerup properties
-                   powerup.setName("t2paddlespeed");
-                   powerup.setX(x1+ BRICK_WIDTH/2);
-                   powerup.setY(y1+ BRICK_HEIGHT/2);
-                   powerup.setWidth(15);
-                   powerup.setHeight(15);
-                   powerup.setColor(Color.yellow);
-                   
-                   powerups.add(powerup);               
+                if (enablePowerups) {   // powerups must be enabled first
+                    int rand = new Random().nextInt(100);
+                    if (rand < 10) {
+                       Powerup powerup = new Powerup();
+
+                       // initialize the powerup properties
+                       powerup.setName("t2paddle");
+                       powerup.setX(x1+ BRICK_WIDTH/2);
+                       powerup.setY(y1+ BRICK_HEIGHT/2);
+                       powerup.setWidth(15);
+                       powerup.setHeight(15);
+                       powerup.setColor(Color.blue);
+
+                       powerups.add(powerup);
+                    } else if (rand < 20) {
+                       Powerup powerup = new Powerup();
+
+                       // initialize the powerup properties
+                       powerup.setName("t2paddlespeed");
+                       powerup.setX(x1+ BRICK_WIDTH/2);
+                       powerup.setY(y1+ BRICK_HEIGHT/2);
+                       powerup.setWidth(15);
+                       powerup.setHeight(15);
+                       powerup.setColor(Color.yellow);
+
+                       powerups.add(powerup);               
+                    }
                 }
                 
                 //delete the brick
                 bricks[i][0] = -BRICK_WIDTH;
                 bricks[i][1] = -BRICK_HEIGHT;                
                 totalBricks--;
-                Score++;
+                
+                // don't add score for quiz bricks
+                if (bricks[i][2] != 1)
+                    Score++;
 
                 // end loop
                 break;
             }
-            
-            // transition to the next level if no more bricks
-            // if there are any powerups falling, wait for them to drop or be absorbed before transitioning to next level
-            if(totalBricks == 0 && powerups.isEmpty() ){
-                newGame();
-            }
         }
         
         // collisions between ball and walls
-        if (ballPosX <= BALL_RADIUS) { // left wall
+        if (ballPosX <= ballRadius) { // left wall
             // ensure that ball will not go over the edge of the wall; this is a fault of the drawing scheme
-            ballPosX = BALL_RADIUS;
+            ballPosX = ballRadius;
             
             // negate the horizontal velocity of the ball
             ballVelX *= -1;
-        } else if (ballPosX >= WIDTH - BALL_RADIUS) { // right wall
+        } else if (ballPosX >= WIDTH - ballRadius) { // right wall
              // ensure that ball will not go over the edge of the wall; this is a fault of the drawing scheme
-            ballPosX = WIDTH - BALL_RADIUS;           
+            ballPosX = WIDTH - ballRadius;           
             
             // negate the horizontal velocity of the ball
             ballVelX *= -1;            
         }
         
-        if (ballPosY <= BALL_RADIUS) { // top wall
+        if (ballPosY <= ballRadius) { // top wall
             // ensure that ball always only touches the edge of the wall; this is a fault of the drawing scheme
-            ballPosY = BALL_RADIUS;            
+            ballPosY = ballRadius;            
             
             // negate the vertical velocity of the ball
             ballVelY *= -1;            
-        } else if (ballPosY >= HEIGHT - BALL_RADIUS) { // bottom wall
+        } else if (ballPosY >= HEIGHT - ballRadius) { // bottom wall
              // ensure that ball always only touches the edge of the wall; this is a fault of the drawing scheme
-            ballPosY = HEIGHT - BALL_RADIUS;
+            ballPosY = HEIGHT - ballRadius;
 
             // game over
             ongoing = false;
             
             // remove active powerup effects
             if (paddleWidth != INITIAL_PADDLE_WIDTH) paddleWidth = INITIAL_PADDLE_WIDTH;
-            else if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
+            
+            if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
                 paddleXVelChange = INITIAL_PADDLE_X_VEL;
                 paddleXVelMWheelChange = INITIAL_PADDLE_X_VEL_MWHEEL;
             }
+            // remove effect from special bricks
+            if (ballRadius != INITIAL_BALL_RADIUS) ballRadius = INITIAL_BALL_RADIUS;
             
             if(liveCount > 0 ){
                 liveCount--;
@@ -347,6 +476,9 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                 pow.setY(pow.getY() + 3);
             
             if (powRect.intersects(paddleRect) ) {
+                // increment for statistics
+                powerupsTaken++;
+                
                 // check for collision with paddle, if so, apply effect, and also prepare for deletion of reference
                 if (pow.getName().equals("t2paddle") && paddleWidth == INITIAL_PADDLE_WIDTH) { // x2 paddle size effect; do not stack
                     paddleWidth *= 2;
@@ -409,7 +541,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     public void keyPressed(KeyEvent e) {
         // check if key was pressed for any of the following events: starting a game, moving the paddle,
         // starting a game
-        if(isGameOver == 0){      
+        if(isGameOver == 0 && isNextLevel == 0){      
             // FOR KEYS MODE ONLY: moving the paddle
             if (ongoing && paddleMovementMode == 0) {
                 // moving the paddle(left)-only if paddle was not already moving
@@ -431,10 +563,29 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             liveCount = 3;
             Score = 0;
             isGameOver = 0;
+            totalCorrectAnswers = 0; 
+            powerupsTaken = 0; 
+            questionsTaken = 0;            
             newGame();
         }else if(isRetry == 0 && e.getKeyCode() == KeyEvent.VK_ENTER && isGameOver == 1){
             System.exit(0);
         }
+        
+        // Moving the cursor for next level interface
+        if (isNextLevel == 1 && e.getKeyCode() == KeyEvent.VK_DOWN) {
+            go = 0;
+        } else if(isNextLevel == 1 && e.getKeyCode() == KeyEvent.VK_UP) {
+            go = 1;
+        }
+        if(go == 1 && e.getKeyCode() == KeyEvent.VK_ENTER && isNextLevel == 1){
+            isNextLevel = 0;
+            newGame();
+            totalCorrectAnswers = 0; 
+            powerupsTaken = 0; 
+            questionsTaken = 0;              
+        }else if(go == 0 && e.getKeyCode() == KeyEvent.VK_ENTER && isNextLevel == 1){
+            System.exit(0);
+        }        
     }
 
     @Override
@@ -453,33 +604,103 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     public void keyTyped(KeyEvent e) {}
     
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mousePressed(MouseEvent e) {
         if(isGameOver == 0){
-        // left click to start the game
-        if (!ongoing && e.getButton() == MouseEvent.BUTTON1)  {
-            ongoing = true;
-            
-            // engage the ball & 50/50 if the ball starts with a positive or negative horizontal velocity
-            ballVelX = new Random().nextInt(2) == 0 ? INITIAL_BALL_VEL[0] : -INITIAL_BALL_VEL[0];
-            ballVelY = INITIAL_BALL_VEL[1];
-        }
-        }
+            // left click to start the game
+            if (!ongoing && e.getButton() == MouseEvent.BUTTON1)  {
+                ongoing = true;
+
+                // engage the ball & 50/50 if the ball starts with a positive or negative horizontal velocity
+                ballVelX = new Random().nextInt(2) == 0 ? INITIAL_BALL_VEL[0] : -INITIAL_BALL_VEL[0];
+                ballVelY = INITIAL_BALL_VEL[1];
+            }
+        }    
+    }    
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if (e.isPopupTrigger() ) {
+            popupMenu.show(e.getComponent(), e.getX(), e.getY() );
+        }    
+    }    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        
     }
     @Override
     public void mouseEntered(MouseEvent e) {
     }    
     @Override
-    public void mousePressed(MouseEvent e) {}
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-    @Override
     public void mouseExited(MouseEvent e) {}
    
     @Override
     public void mouseDragged(MouseEvent e) {
+        if (!enableBrickGuide || isGameOver == 1) return;
+        
+        brickText = "";
+        
+        for (int i = 0; i < bricks.length; i++) {
+            int x1 = bricks[i][0];
+            int y1 = bricks[i][1];
+            int type = bricks[i][2];
+            
+            // rectangles/hitboxes of brick
+            Rectangle brickRect = new Rectangle(x1, y1, BRICK_WIDTH, BRICK_HEIGHT);
+            
+            // mouse touches brick, update brick text
+            if (brickRect.contains(e.getX(), e.getY() ) ) {
+                switch (type) {
+                    case 0:
+                        brickText = "Normal brick.";
+                        brickColor = Color.WHITE;
+                    break;
+                    case 1:
+                        brickText = "Quiz brick.";
+                        brickColor = Color.RED;
+                    break;
+                    case 2:
+                        brickText = "Enlarge Ball brick.";
+                        brickColor = Color.YELLOW;
+                }
+                
+                // end loop
+                break;
+            }
+        }        
     }
     @Override
     public void mouseMoved(MouseEvent e) {
+        if (!enableBrickGuide || isGameOver == 1) return;
+        
+        brickText = "";
+        
+        for (int i = 0; i < bricks.length; i++) {
+            int x1 = bricks[i][0];
+            int y1 = bricks[i][1];
+            int type = bricks[i][2];
+            
+            // rectangles/hitboxes of brick
+            Rectangle brickRect = new Rectangle(x1, y1, BRICK_WIDTH, BRICK_HEIGHT);
+            
+            // mouse touches brick, update brick text
+            if (brickRect.contains(e.getX(), e.getY() ) ) {
+                switch (type) {
+                    case 0:
+                        brickText = "Normal brick.";
+                        brickColor = Color.WHITE;
+                    break;
+                    case 1:
+                        brickText = "Quiz brick.";
+                        brickColor = Color.RED;
+                    break;
+                    case 2:
+                        brickText = "Enlarge Ball brick.";
+                        brickColor = Color.YELLOW;
+                }
+                
+                // end loop
+                break;
+            }
+        }
     }
     
     @Override
@@ -509,10 +730,16 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         // remove active powerup effects
         if (paddleWidth != INITIAL_PADDLE_WIDTH) paddleWidth = INITIAL_PADDLE_WIDTH;
-        else if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
+        if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
             paddleXVelChange = INITIAL_PADDLE_X_VEL;
             paddleXVelMWheelChange = INITIAL_PADDLE_X_VEL_MWHEEL;
         }
+        
+        // remove effect from special bricks
+        if (ballRadius != INITIAL_BALL_RADIUS) ballRadius = INITIAL_BALL_RADIUS;
+        
+        // reset correct answers
+        correctAnswers = 0;
     }
 
     protected void setPaddleMovementMode(int mode) {
@@ -559,19 +786,17 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                 this.bricks[brickIndex][0] = x1 + (BRICK_WIDTH + BRICK_SPACE) * c;
                 this.bricks[brickIndex][1] = y1 + (BRICK_HEIGHT + BRICK_SPACE) * r;
                 
-                // brick type (5% x2 ball for 5 seconds, 15% quiz, 97% normal)
+                // brick type (5% enlargen ball for 20 seconds, 15% quiz, 97% normal)
                 int rand = new Random().nextInt(1000);
                 if (rand < 800) {
                     this.bricks[brickIndex][2] = 0;
-                    System.out.println(brickIndex + ":normal");  
-                } else if (rand < 950) { // a max of 40% of bricks can be quiz bricks
+                } else if (rand < 950 && quizBricksCount <= (int)(0.40 * bricks) && enableQuizSystem) { // a max of 40% of bricks can be quiz bricks
+                    // quiz system must be enabled
                     this.bricks[brickIndex][2] = 1;
                     quizBricksCount++;
-                    System.out.println(brickIndex + ":quiz");  
-                } else  { // only allow 1 brick of this type per level
+                } else if (enlargeBricksCount == 0){ // only allow 1 brick of this type per level
                     this.bricks[brickIndex][2] = 2;
                     enlargeBricksCount++;
-                    System.out.println(brickIndex + ":enlarge");  
                 }
                 
                 // move to next brick
@@ -579,7 +804,6 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             }
         }
         totalBricks = this.bricks.length;
-        System.out.println("");
     }
     
     private void movePaddleLeft() {
@@ -608,7 +832,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         int space = 50; // arbitrary number to put some space between ball and paddle
         ballPosX = WIDTH / 2;
-        ballPosY = paddlePosY - paddleHeight / 2 - BALL_RADIUS - space;
+        ballPosY = paddlePosY - paddleHeight / 2 - ballRadius - space;
         
         // ball is now stationary
         ballVelX = 0;
@@ -627,16 +851,49 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         g.drawString("Left-click to engage the ball.", ballPosX - 135, ballPosY - 45);
     }
     
+    private void nextLevel(Graphics g){
+        isNextLevel = 1;
+        
+        //Main
+        g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        g.setFont(new Font("Arial", Font.BOLD, 36));
+        g.setColor(Color.WHITE);
+        g.drawString("NEXT LEVEL",findCenter(g, "NEXT LEVEL") , 320);
+                
+        g.setFont(new Font("Arial", Font.BOLD, 24));
+        //Retry
+        g.drawString("Go",findCenter(g, "Go"), 400);
+
+        //Quit
+        g.drawString("Quit",findCenter(g, "Quit"), 450);
+        
+        //Cursor
+        if(go == 1){
+            g.drawString(">", findCenter(g, "Go") - 30, 400);
+
+        } else{
+            g.drawString(">", findCenter(g, "Quit") - 30, 450);
+
+        }
+        
+        // write # of correct answers
+        if (enableQuizSystem) {
+            g.setColor(Color.green);
+            g.drawString("Correct: " + correctAnswers, findCenter(g, "Correct: " + correctAnswers) - 30, 500);
+        }
+    }
+    
     private void gameOver(Graphics g){
         isGameOver = 1;
         //Main
         g.setColor(new Color(0, 0, 0, 150));
         g.fillRect(0, 0, WIDTH, HEIGHT);
-        g.setFont(new Font("Ariel", Font.BOLD, 36));
+        g.setFont(new Font("Arial", Font.BOLD, 36));
         g.setColor(Color.WHITE);
         g.drawString("GAME OVER",findCenter(g, "GAME OVER") , 320);
                 
-        g.setFont(new Font("Ariel", Font.BOLD, 24));
+        g.setFont(new Font("Arial", Font.BOLD, 24));
         //Retry
         g.drawString("Retry",findCenter(g, "Retry"), 400);
 
@@ -650,6 +907,12 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         } else{
             g.drawString(">", findCenter(g, "Retry") - 30, 450);
 
+        }
+        
+        // write # of correct answers
+        if (enableQuizSystem) {
+            g.setColor(Color.green);
+            g.drawString("Correct: " + correctAnswers, findCenter(g, "Correct: " + correctAnswers) - 30, 500);
         }
 
     }

@@ -31,6 +31,8 @@ public class QuizSystem {
                 questions.add(textScan.nextLine());
                 answers.add(textScan.nextLine());
             }
+
+            textScan.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(QuizSystem.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -48,7 +50,5 @@ public class QuizSystem {
         
         String[] outputArray = {outputQuestion, outputAnswer};
         return outputArray;
-    }
-    
-    
+    }  
 }
