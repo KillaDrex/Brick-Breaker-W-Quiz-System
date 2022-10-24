@@ -41,8 +41,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
      
     // paddle
     private final int PADDLE_WIDTH = 95, PADDLE_HEIGHT = 15;
-    private final int INITIAL_PADDLE_X_VEL = 9; // default paddle speed
-    private final int INITIAL_PADDLE_X_VEL_MWHEEL = 14; // default paddle speed using the mouse wheel; had to add this for ease 
+    private final int INITIAL_PADDLE_X_VEL = 2; // default paddle speed
+    private final int INITIAL_PADDLE_X_VEL_MWHEEL = 4; // default paddle speed using the mouse wheel; had to add this for ease 
     
     // center point of paddle // you only need to set paddle position y once
     private int paddlePosX, paddlePosY = HEIGHT - PADDLE_HEIGHT / 2;
@@ -62,13 +62,12 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private int totalBricks;
 
 
-    // paddle movement modes; 0=keys, 1=mouse, 2=mouse wheel
+    // paddle movement modes; 0=keys, 1=mouse wheel
     private int paddleMovementMode = 0;
     
     // ball
-    private final int BALL_RADIUS = 8;
-    private final int[] INITIAL_BALL_VEL = {3, 4}; // default ball speed
-    private final int BALL_VEL_CHANGE = 4; // this is the change in velocity of a ball when hitting a certain side of the paddle
+    private final int BALL_RADIUS = 12;
+    private final int[] INITIAL_BALL_VEL = {1, -2}; // default ball speed
     private int ballPosX, ballPosY; // center point of ball
     private int ballVelX = 0, ballVelY = 0; // velocity is tied to the game's redraw time
     
@@ -77,8 +76,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     // bricks - a 2d array where each 1d array represents a brick
     // the elements in 1d array in order are: x1, y1
-    private final int BRICK_WIDTH = 60, BRICK_HEIGHT = 30;
-    private final int BRICK_SPACE = 3; // horizontal and vertical spaces between bricks
+    private final int BRICK_WIDTH = 105, BRICK_HEIGHT = 53;
+    private final int BRICK_SPACE = 10; // horizontal and vertical spaces between bricks
     private int[][] bricks;
 
     
@@ -108,6 +107,10 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // draw background
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        if (!ongoing && isGameOver != 1) { // if game has not started, draw the helper text; don't show text in game-over screen
+            dispStartText(g);
+        }
         
         // draw paddle
         g.setColor(Color.WHITE);
@@ -148,8 +151,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         paddlePosX += paddleVelX;
         
                 
-        // if the appropriate movement method chosen, mouse/mouse wheel has not moved, reset paddle velocity
-        if (paddleMovementMode == 1 || paddleMovementMode == 2) {
+        // if the appropriate movement method chosen, mouse wheel has not moved, reset paddle velocity
+        if (paddleMovementMode == 1) {
             isPaddleMoving[0] = false;
             isPaddleMoving[1] = false;
             paddleVelX = 0;
@@ -195,27 +198,16 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
 
             // ball intersects with brick
             if (ballRect.intersects(brickRect) ) { 
+                if (ballRect.x + ballRect.width - 1 <= brickRect.x || ballRect.x + 1 >= brickRect.x + brickRect.width) {
+                    ballVelX *= -1;
+                } else {
+                    ballVelY *= -1;
+                }                
                 
-
-                // update velocity depending on which brick side was hit by the ball
-                if (brickRect.contains(new Point(ballRect.x + ballRect.width -1, ballRect.y) ) ) {             
-                        // ball hits left side of brick, negate horizontal velocity
-                        ballVelX *= -1;
-                } else if (brickRect.contains(new Point(ballRect.x, ballRect.y) ) ) {
-                        // ball hits right side of brick, negate horizontal velocity
-                        ballVelX *= -1;
-                }
                 
-                if (brickRect.contains(new Point(ballRect.x, ballRect.y) ) ) {
-                        // ball hits top side of brick, negate horizontal velocity
-                        ballVelY *= -1;
-                } else if (brickRect.contains(new Point(ballRect.x, ballRect.y + ballRect.height - 1) ) ) {
-                        // ball hits bottom side of brick, negate horizontal velocity
-                        ballVelY *= -1;
-                }
                 //delete the brick
-                bricks[i][0] = 0 - BRICK_WIDTH - BRICK_SPACE;
-                bricks[i][1] = 0 - BRICK_WIDTH - BRICK_SPACE;
+                bricks[i][0] = -BRICK_WIDTH;
+                bricks[i][1] = -BRICK_HEIGHT;                
                 totalBricks--;
                 Score++;
                 
@@ -345,32 +337,15 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
    
     @Override
     public void mouseDragged(MouseEvent e) {
-        // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
-        if (!ongoing || paddleMovementMode != 1) return;      
-        
-        // make the paddle follow the mouse
-        paddlePosX = e.getX();    
     }
     @Override
     public void mouseMoved(MouseEvent e) {
-        // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
-        if (!ongoing || paddleMovementMode != 1) return;       
-        
-        // move the paddle depending on the direction the mouse was moved
-        if (e.getX() < prevMouseX) { // moved to the left
-            movePaddleLeft();
-        } else if (e.getX() > prevMouseX) { // moved to the right
-            movePaddleRight();
-        }
-                
-        // get coords
-        prevMouseX = e.getX();
     }
     
      @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
-        if (!ongoing || paddleMovementMode != 2) return;             
+        if (!ongoing || paddleMovementMode != 1) return;             
         
         // move the paddle depending on the direction the wheel was scrolled
         if (e.getWheelRotation() < 0) { // left paddle movement: scrolled negatively
@@ -399,11 +374,11 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         int x1, y1, width, height; // rectangle that the brick structure forms
         // get a valid pair of bricks & rows where # of bricks is divisible by # of rows
         do {
-            // pick # of bricks between 12-36
-            bricks = new Random().nextInt(25) + 12;
+            // pick # of bricks between 5-12
+            bricks = new Random().nextInt(8) + 5;
 
-            // pick # of rows between 4-6
-            rows = new Random().nextInt(3) + 4;
+            // pick # of rows between 2-3
+            rows = new Random().nextInt(2) + 2;
             
             // valid; exit loop
             if (bricks % rows == 0) {
@@ -424,7 +399,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         // center rectangle horizontally on screen
         x1 = WIDTH / 2 - width / 2;
-        y1 = 75; // arbitrary number // just to fit all possible bricks on screen and also give space to paddle
+        y1 = 150; // arbitrary number // just to fit all possible bricks on screen and also give space to paddle
         
         // set coordinates of each brick (by row)
         int brickIndex = 0;
@@ -442,7 +417,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     private void movePaddleLeft() {
         // update paddle velocity to move paddle to the left
-        if (paddleMovementMode != 2) {
+        if (paddleMovementMode != 1) {
             paddleVelX += -INITIAL_PADDLE_X_VEL;
         } else {
             paddleVelX += -INITIAL_PADDLE_X_VEL_MWHEEL;
@@ -453,7 +428,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     private void movePaddleRight() {
         // update paddle velocity to move paddle to the left
-        if (paddleMovementMode != 2) {
+        if (paddleMovementMode != 1) {
             paddleVelX += INITIAL_PADDLE_X_VEL;
         } else {
             paddleVelX += INITIAL_PADDLE_X_VEL_MWHEEL;
@@ -474,11 +449,17 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     }
     private void dispText(Graphics g){
 
-        g.setFont(new Font("Ariel", Font.BOLD, 24));
+        g.setFont(new Font("Arial", Font.BOLD, 24));
         g.drawString("SCORE: " + Score, 15 , 30);
         g.drawString("LIVES: " + liveCount, 585 , 30);
     }
 
+    private void dispStartText(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Calibri", Font.PLAIN, 24));
+        g.drawString("Left-click to engage the ball.", ballPosX - 135, ballPosY - 45);
+    }
+    
     private void gameOver(Graphics g){
         isGameOver = 1;
         //Main
