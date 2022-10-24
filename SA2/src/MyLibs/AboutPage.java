@@ -6,7 +6,7 @@ package MyLibs;
 
 /**
  *
- * @author abero
+ * @author Group 4
  */
 public class AboutPage extends javax.swing.JDialog {
 

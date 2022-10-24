@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author abero
+ * @author Group 4
  */
 public class QuizSystem {
     private ArrayList <String> questions = new ArrayList<>();

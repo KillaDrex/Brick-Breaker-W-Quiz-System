@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author killa
+ * @author Group 4
  */
 public class Main extends javax.swing.JFrame {
     
@@ -235,10 +235,13 @@ public class Main extends javax.swing.JFrame {
         jfc.setCurrentDirectory(new File("src\\Assets"));
         int fileSelected = jfc.showOpenDialog(this);
         
-//        if (fileSelected == JFileChooser.APPROVE_OPTION){
-//            String fileLocation = (jfc.getSelectedFile().);
-//            System.out.println(fileLocation);
-//        }
+        //this literally just turns the file name into a string and removes the ".txt" from it
+        if (fileSelected == JFileChooser.APPROVE_OPTION){
+            String fileLocationPreSub = (jfc.getSelectedFile().getName());
+            String fileLocationPostSub = fileLocationPreSub.substring(0, fileLocationPreSub.length()-4);
+            JOptionPane.showMessageDialog(this,fileLocationPreSub+" has been chosen.");
+            //TODO: READ TEXT FILE TO QS IN GAMEPANEL
+        }
     }//GEN-LAST:event_jmiChooseFileActionPerformed
 
     

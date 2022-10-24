@@ -26,12 +26,13 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.TimerTask;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 /**
  *
- * @author killa
+ * @author Group 4
  */
 public class GamePanel extends javax.swing.JPanel implements ActionListener, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     // panel properties
@@ -39,17 +40,19 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
 
     // handles the redrawing of the game
     private Timer timer;
-    
-    // get the most recent mouse x coordinate ; used in paddle movement
-    private int prevMouseX;
      
+    // handles the powerup effects of the game
+    private java.util.Timer powTimer = new java.util.Timer(true);
+    
     // paddle
-    private final int PADDLE_WIDTH = 95, PADDLE_HEIGHT = 15;
-    private final int INITIAL_PADDLE_X_VEL = 2; // default paddle speed
-    private final int INITIAL_PADDLE_X_VEL_MWHEEL = 4; // default paddle speed using the mouse wheel; had to add this for ease 
+    private final int INITIAL_PADDLE_WIDTH = 95;
+    private int paddleWidth = INITIAL_PADDLE_WIDTH, paddleHeight = 15;
+    private final int INITIAL_PADDLE_X_VEL = 2, INITIAL_PADDLE_X_VEL_MWHEEL = 4; // default paddle change speeds
+    private int paddleXVelChange = 2; // change in paddle speed using keys
+    private int paddleXVelMWheelChange = 4; // change in paddle speed using the mouse wheel; had to add this for ease 
     
     // center point of paddle // you only need to set paddle position y once
-    private int paddlePosX, paddlePosY = HEIGHT - PADDLE_HEIGHT / 2;
+    private int paddlePosX, paddlePosY = HEIGHT - paddleHeight / 2;
     
     // velocity is tied to the game's redraw time
     private int paddleVelX = 0;
@@ -86,8 +89,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
 
     private ArrayList<Powerup> powerups = new ArrayList<>();
     
-    private int specialbricks;
-    
+    private QuizSystem qs;
+
     public GamePanel() {
         // properties
         addKeyListener(this);
@@ -96,12 +99,17 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         addMouseWheelListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+        
         // start a new game
         newGame();
         
-        // redraws the game every 8 milliseconds
-        timer = new Timer(8, this);
+        // redraws the game every 17 milliseconds
+        timer = new Timer(17, this);
         timer.start();
+    }
+
+    public QuizSystem getQs() {
+        return qs;
     }
     
     @Override
@@ -121,7 +129,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         // draw paddle
         g.setColor(Color.WHITE);
-        g.fillRect(paddlePosX - PADDLE_WIDTH / 2, paddlePosY - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT);
+        g.fillRect(paddlePosX - paddleWidth / 2, paddlePosY - paddleHeight / 2, paddleWidth, paddleHeight);
         
         // draw ball
         g.setColor(Color.RED);
@@ -130,35 +138,37 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // draw bricks
         g.setColor(Color.WHITE);
         for (int i = 0; i < bricks.length; i++) {
-            if(bricks[i][0] != 0 && bricks[i][1] != 0){
-                if (bricks[i][2] == 1) {
-                    g.setColor(Color.red);
-                } else if (bricks[i][2] == 2) {
-                    g.setColor(Color.yellow);
-                }
+            if(bricks[i][0] != -BRICK_WIDTH && bricks[i][1] != -BRICK_HEIGHT){
+//                if (bricks[i][2] == 1) { TEMP
+//                    g.setColor(Color.red);
+//                } else if (bricks[i][2] == 2) {
+//                    g.setColor(Color.yellow);
+//                } else {
+//                    g.setColor(Color.WHITE);
+//                }
                 
                 g.fillRect(bricks[i][0], bricks[i][1], BRICK_WIDTH, BRICK_HEIGHT);
             }
         }
-
+        
         // draw powerups
         for(Powerup pow : powerups) {
             // set color 
             g.setColor(pow.getColor() );
             
             // draw powerup
-            if (pow.getName().equals("t2paddle") ) {
+            if (pow.getName().equals("t2paddle") ) { // x2 paddle speed powerup
                 g.fillRect(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight());
-            } else {
+            } else { // x2 paddle size powerup
                 g.fillOval(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight());
             }
         }
-        g.setColor(Color.WHITE);
         
         if(liveCount == 0){
             gameOver(g);
         }
 
+        g.setColor(Color.WHITE);
         dispText(g);
         
         g.dispose();
@@ -189,26 +199,26 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // check for any collisions
         
         // collisions between paddle and walls
-        if (paddlePosX <= PADDLE_WIDTH / 2) { // left wall
+        if (paddlePosX <= paddleWidth / 2) { // left wall
             // negate paddle velocity
             paddlePosX -= paddleVelX;
             
             // ensure that paddle will not go over the wall edge; this is a fault of the drawing scheme
-            paddlePosX = PADDLE_WIDTH / 2;
-        } else if (paddlePosX >= WIDTH - PADDLE_WIDTH / 2) { // right wall
+            paddlePosX = paddleWidth / 2;
+        } else if (paddlePosX >= WIDTH - paddleWidth / 2) { // right wall
             // negate paddle velocity
             paddlePosX -= paddleVelX;
             
             // ensure that paddle will not go over the wall edge; this is a fault of the drawing scheme
-            paddlePosX = WIDTH - PADDLE_WIDTH / 2;            
+            paddlePosX = WIDTH - paddleWidth / 2;            
         }
         
         // collision between paddle and ball
-        if (ballPosY >= paddlePosY - PADDLE_HEIGHT / 2 - BALL_RADIUS && 
-                ballPosX >= paddlePosX -  PADDLE_WIDTH / 2 && ballPosX <= paddlePosX + PADDLE_WIDTH / 2) {
+        if (ballPosY >= paddlePosY - paddleHeight / 2 - BALL_RADIUS && 
+                ballPosX >= paddlePosX -  paddleWidth / 2 && ballPosX <= paddlePosX + paddleWidth / 2) {
             
             // ensure that ball will not go over the edge of the paddle; this is a fault of the drawing scheme
-            ballPosY = paddlePosY - PADDLE_HEIGHT / 2 - BALL_RADIUS;
+            ballPosY = paddlePosY - paddleHeight / 2 - BALL_RADIUS;
             
             // negate the vertical velocity of the ball
             ballVelY *= -1;
@@ -232,39 +242,32 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                     ballVelY *= -1;
                 }                
                 
-                
-                // 20% chance for powerup (10% for x2 faster paddle, 10% for x2 longer paddle)
-                if (new Random().nextInt(20) < 10) {
-                   Powerup powerup = new Powerup() {
-                       @Override
-                       public void fall(){
-                          
-                       }
-                   };
+                // 20% chance for powerup (10% for x2 longer paddle, 10% for x2 faster paddle)
+                int rand = new Random().nextInt(100);
+                if (rand < 10) {
+                   Powerup powerup = new Powerup();
                    
+                   // initialize the powerup properties
                    powerup.setName("t2paddle");
                    powerup.setX(x1+ BRICK_WIDTH/2);
                    powerup.setY(y1+ BRICK_HEIGHT/2);
                    powerup.setWidth(15);
                    powerup.setHeight(15);
                    powerup.setColor(Color.blue);
-                   powerups.add(powerup);
-                } else {
-                   Powerup powerup = new Powerup() {
-                       @Override
-                       public void fall(){
-                           
-                       }
-                   };
                    
-                   powerup.setName("t2paddlesize");
+                   powerups.add(powerup);
+                } else if (rand < 20) {
+                   Powerup powerup = new Powerup();
+                   
+                   // initialize the powerup properties
+                   powerup.setName("t2paddlespeed");
                    powerup.setX(x1+ BRICK_WIDTH/2);
                    powerup.setY(y1+ BRICK_HEIGHT/2);
                    powerup.setWidth(15);
                    powerup.setHeight(15);
                    powerup.setColor(Color.yellow);
                    
-                   powerups.add(powerup);                
+                   powerups.add(powerup);               
                 }
                 
                 //delete the brick
@@ -276,10 +279,12 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                 // end loop
                 break;
             }
-            if(totalBricks == 0){
+            
+            // transition to the next level if no more bricks
+            // if there are any powerups falling, wait for them to drop or be absorbed before transitioning to next level
+            if(totalBricks == 0 && powerups.isEmpty() ){
                 newGame();
             }
-
         }
         
         // collisions between ball and walls
@@ -310,6 +315,13 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             // game over
             ongoing = false;
             
+            // remove active powerup effects
+            if (paddleWidth != INITIAL_PADDLE_WIDTH) paddleWidth = INITIAL_PADDLE_WIDTH;
+            else if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
+                paddleXVelChange = INITIAL_PADDLE_X_VEL;
+                paddleXVelMWheelChange = INITIAL_PADDLE_X_VEL_MWHEEL;
+            }
+            
             if(liveCount > 0 ){
                 liveCount--;
 
@@ -322,6 +334,73 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             }        
         }
         
+        // update powerup locations (make them fall)
+        ArrayList<Powerup> deletedPowerups = new ArrayList<>();
+        for (int i = 0; i < powerups.size(); i++) {
+            Powerup pow = powerups.get(i);
+            
+            Rectangle powRect = new Rectangle(pow.getX() - pow.getWidth() / 2, pow.getY() - pow.getHeight() / 2, pow.getWidth(), pow.getHeight() );
+            Rectangle paddleRect = new Rectangle(paddlePosX - paddleWidth / 2, paddlePosY - paddleHeight / 2, paddleWidth, paddleHeight);
+            
+            // update powerup's y value (only if the ball is engaged)
+            if (ongoing)
+                pow.setY(pow.getY() + 3);
+            
+            if (powRect.intersects(paddleRect) ) {
+                // check for collision with paddle, if so, apply effect, and also prepare for deletion of reference
+                if (pow.getName().equals("t2paddle") && paddleWidth == INITIAL_PADDLE_WIDTH) { // x2 paddle size effect; do not stack
+                    paddleWidth *= 2;
+                    
+                    // after three seconds, revert the size
+                    powTimer.schedule(new TimerTask(){
+                        @Override
+                        public void run() {
+                            // revert effect, only if effect was not reverted prior (dying/new game)
+                            if (paddleWidth != INITIAL_PADDLE_WIDTH)
+                                paddleWidth /= 2;
+                        }
+                    }, 3000);
+                } else if (pow.getName().equals("t2paddlespeed") && Math.abs(paddleXVelChange) == INITIAL_PADDLE_X_VEL) {    
+                    // x2 paddle speed, don't stack the effect
+                    
+                    // BUGFIX: moving in a certain direction while receiving the powerup messes with the
+                    // paddle's velocity
+                    paddleVelX = 0;
+                    isPaddleMoving[0] = false;
+                    isPaddleMoving[1] = false;
+                    
+                    // apply effect for all movement modes
+                    paddleXVelChange *= 2;
+                    paddleXVelMWheelChange *= 2;
+                    
+                    // after five seconds, revert the speed
+                    powTimer.schedule(new TimerTask(){
+                        @Override
+                        public void run() {
+                            // BUGFIX: moving in a certain direction while receiving the powerup messes with the
+                            // paddle's velocity
+                            paddleVelX = 0;
+                            isPaddleMoving[0] = false;
+                            isPaddleMoving[1] = false;    
+                            
+                            // // revert effect, only if effect was not reverted prior (dying/new game)
+                            if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
+                                paddleXVelChange /= 2;
+                                paddleXVelMWheelChange /= 2;
+                            }
+                        }
+                    }, 5000);                   
+                }
+                
+                deletedPowerups.add(pow);
+            } else if (pow.getY() >= HEIGHT + pow.getHeight() / 2) 
+                // if powerup is outside screen, prepare for deletion of its reference
+                deletedPowerups.add(pow);
+        }
+        for (Powerup pow : deletedPowerups) {
+            powerups.remove(pow);
+        }
+
         // redraw the game
         repaint();
     }    
@@ -364,10 +443,10 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // then update paddle velocity appropriately
         if (isPaddleMoving[0] && e.getKeyCode() == KeyEvent.VK_LEFT) {
             isPaddleMoving[0] = false;
-            paddleVelX += INITIAL_PADDLE_X_VEL;
+            paddleVelX += paddleXVelChange;
         } else if (isPaddleMoving[1] && e.getKeyCode() == KeyEvent.VK_RIGHT) {
             isPaddleMoving[1] = false;
-            paddleVelX -= INITIAL_PADDLE_X_VEL;
+            paddleVelX -= paddleXVelChange;
         }
     }
     @Override
@@ -403,7 +482,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     public void mouseMoved(MouseEvent e) {
     }
     
-     @Override
+    @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
         if (!ongoing || paddleMovementMode != 1) return;             
@@ -424,6 +503,16 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         // generate bricks
         generateBricks();
+        
+        // remove previous level's powerups
+        powerups.clear();
+        
+        // remove active powerup effects
+        if (paddleWidth != INITIAL_PADDLE_WIDTH) paddleWidth = INITIAL_PADDLE_WIDTH;
+        else if (paddleXVelChange != INITIAL_PADDLE_X_VEL) {
+            paddleXVelChange = INITIAL_PADDLE_X_VEL;
+            paddleXVelMWheelChange = INITIAL_PADDLE_X_VEL_MWHEEL;
+        }
     }
 
     protected void setPaddleMovementMode(int mode) {
@@ -457,43 +546,48 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         // get width & height
         width = bricks / rows * BRICK_WIDTH + (bricks / rows - 1) * BRICK_SPACE;
         height = bricks / cols * BRICK_HEIGHT + (bricks / cols - 1) * BRICK_SPACE;
-        
-       //specialbricks = new Random().nextInt(4); //0-5;
-       //bricks[i][2] = 1;
+
         // center rectangle horizontally on screen
         x1 = WIDTH / 2 - width / 2;
         y1 = 150; // arbitrary number // just to fit all possible bricks on screen and also give space to paddle
         
         // set coordinates of each brick (by row)
         int brickIndex = 0;
+        int quizBricksCount = 0, enlargeBricksCount = 0; // counts the number of current specific bricks
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 this.bricks[brickIndex][0] = x1 + (BRICK_WIDTH + BRICK_SPACE) * c;
                 this.bricks[brickIndex][1] = y1 + (BRICK_HEIGHT + BRICK_SPACE) * r;
                 
-                // to be a special quiz brick (0.05% enlarge, 2.5% quiz, 97% normal)
-                int rand = new Random().nextInt(100);
-                if (rand < 0) {
+                // brick type (5% x2 ball for 5 seconds, 15% quiz, 97% normal)
+                int rand = new Random().nextInt(1000);
+                if (rand < 800) {
                     this.bricks[brickIndex][2] = 0;
-                } else if (rand < 96) {
+                    System.out.println(brickIndex + ":normal");  
+                } else if (rand < 950) { // a max of 40% of bricks can be quiz bricks
                     this.bricks[brickIndex][2] = 1;
-                } else {
+                    quizBricksCount++;
+                    System.out.println(brickIndex + ":quiz");  
+                } else  { // only allow 1 brick of this type per level
                     this.bricks[brickIndex][2] = 2;
+                    enlargeBricksCount++;
+                    System.out.println(brickIndex + ":enlarge");  
                 }
+                
                 // move to next brick
                 brickIndex++;
             }
         }
         totalBricks = this.bricks.length;
-
+        System.out.println("");
     }
     
     private void movePaddleLeft() {
         // update paddle velocity to move paddle to the left
         if (paddleMovementMode != 1) {
-            paddleVelX += -INITIAL_PADDLE_X_VEL;
+            paddleVelX += -paddleXVelChange;
         } else {
-            paddleVelX += -INITIAL_PADDLE_X_VEL_MWHEEL;
+            paddleVelX += -paddleXVelMWheelChange;
         }
         
         isPaddleMoving[0] = true;
@@ -502,9 +596,9 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     private void movePaddleRight() {
         // update paddle velocity to move paddle to the left
         if (paddleMovementMode != 1) {
-            paddleVelX += INITIAL_PADDLE_X_VEL;
+            paddleVelX += paddleXVelChange;
         } else {
-            paddleVelX += INITIAL_PADDLE_X_VEL_MWHEEL;
+            paddleVelX += paddleXVelMWheelChange;
         }
         
        isPaddleMoving[1] = true;
@@ -514,7 +608,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         
         int space = 50; // arbitrary number to put some space between ball and paddle
         ballPosX = WIDTH / 2;
-        ballPosY = paddlePosY - PADDLE_HEIGHT / 2 - BALL_RADIUS - space;
+        ballPosY = paddlePosY - paddleHeight / 2 - BALL_RADIUS - space;
         
         // ball is now stationary
         ballVelX = 0;

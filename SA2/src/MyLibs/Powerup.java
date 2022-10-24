@@ -11,17 +11,16 @@ import java.awt.Color;
 
 /**
  *
- * @author christian
+ * @author Group 4
  *
  */
 
 
 
 public class Powerup {
-
     private String name;
-    private int x;
-    private int y;
+    private int x; // center point
+    private int y; // center point
     private int width;
     private int height;
     private Color color;
@@ -73,10 +72,5 @@ public class Powerup {
     public void setColor(Color color) {
         this.color = color;
     }
-
-    public void fall(){
-    }
-
-    
 }
 
