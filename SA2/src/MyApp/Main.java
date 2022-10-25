@@ -8,6 +8,8 @@ import MyLibs.AboutPage;
 import MyLibs.HelpPage;
 import MyLibs.QuizSystem;
 import java.awt.Cursor;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -34,8 +36,10 @@ public class Main extends javax.swing.JFrame {
         setResizable(false);
         setTitle("Brick Breaker : Quiz Edition");
         setLocationRelativeTo(null);
-         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/assets/icon/ball.png")).getImage()
-        );
+        try {
+            setIconImage(new javax.swing.ImageIcon(getClass().getResource("/assets/icon/ball.png")).getImage()
+           );
+        } catch (Exception e) {}
     }
     
     /**
@@ -311,12 +315,12 @@ public class Main extends javax.swing.JFrame {
         if (game.isEnablePowerups() ) {
             game.setEnablePowerups(false);
             // prompt
-            JOptionPane.showMessageDialog(this, "Powerups were disabled.");            
+            JOptionPane.showMessageDialog(this, "Powerups were disabled.", "Powerups enabled", JOptionPane.INFORMATION_MESSAGE);            
         }
         else {
             game.setEnablePowerups(true);
             // prompt
-            JOptionPane.showMessageDialog(this, "Powerups were enabled.");
+            JOptionPane.showMessageDialog(this, "Powerups were enabled.", "Powerups disabled", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_epowerupsActionPerformed
 
@@ -325,17 +329,17 @@ public class Main extends javax.swing.JFrame {
         if (game.isEnableQuizSystem()) {
             game.setEnableQuizSystem(false);
             // prompt
-            JOptionPane.showMessageDialog(this, "Quiz system was disabled.");            
+            JOptionPane.showMessageDialog(this, "Quiz system was disabled.", "Quiz System disabled", JOptionPane.INFORMATION_MESSAGE);            
         }
         else {
             game.setEnableQuizSystem(true);
             
             // prompt
-            JOptionPane.showMessageDialog(this, "Quiz system was enabled.");   
+            JOptionPane.showMessageDialog(this, "Quiz system was enabled.", "Quiz System enabled", JOptionPane.INFORMATION_MESSAGE);   
             
             // prompt
             JOptionPane.showMessageDialog(this, "Bear in mind that you'll have to start a new game \nor progress to a new level"
-                    + " for the quiz to be applied.");              
+                    + " for the quiz to be applied.", "Notice", JOptionPane.WARNING_MESSAGE);              
         }        
     }//GEN-LAST:event_equizActionPerformed
 
@@ -343,13 +347,13 @@ public class Main extends javax.swing.JFrame {
         if (game.isEnableBrickGuide()) {
             game.setEnableBrickGuide(false);
             // prompt
-            JOptionPane.showMessageDialog(this, "Brick guide was disabled.");            
+            JOptionPane.showMessageDialog(this, "Brick guide was disabled.", "Brick Guide enabled", JOptionPane.INFORMATION_MESSAGE);            
         }
         else {
             game.setEnableBrickGuide(true);
             
             // prompt
-            JOptionPane.showMessageDialog(this, "Brick guide was enabled.");              
+            JOptionPane.showMessageDialog(this, "Brick guide was enabled.", "Brick Guide disabled", JOptionPane.INFORMATION_MESSAGE);              
         }
     }//GEN-LAST:event_eBrickGuideActionPerformed
 

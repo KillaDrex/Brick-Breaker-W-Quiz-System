@@ -14,6 +14,8 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -120,6 +122,19 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         
+        addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {}
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                paddleVelX = 0;
+                isPaddleMoving[0] = false;
+                isPaddleMoving[1] = false;
+            }
+            
+        });
+        
         // create a popup menu
         popupMenu = new JPopupMenu();
         JMenuItem statsItem = new JMenuItem("Current Statistics");
@@ -223,16 +238,20 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         
         if(liveCount == 0){
-            totalCorrectAnswers = 0;
-            powerupsTaken = 0;
-            questionsTaken = 0;
             gameOver(g);
+            
+            // reset paddle vel
+            paddleVelX = 0;            
+            
         }
 
         // transition to the next level if no more bricks
         // if there are any powerups falling, wait for them to drop or be absorbed before transitioning to next level
         if(totalBricks == 0 && powerups.isEmpty() ){
             nextLevel(g);
+            
+            // reset paddle vel
+            paddleVelX = 0;
         }
         
         g.setColor(Color.WHITE);
@@ -250,6 +269,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     @Override
     public void actionPerformed(ActionEvent e) {    // this method handles any updates to the game's state
+        
+
         // BUGFIX: holding down a paddle movement key while the level resets, moves the paddle while the game is stationary
         // reset paddle velocity while game is not ongoing
         if (!ongoing) {
@@ -257,8 +278,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         
         // update ball, paddle
-        // make the ball stationary in next level menu
-        if (isNextLevel != 1) {
+        // make the ball stationary in menu screens
+        if (isGameOver != 1 && isNextLevel != 1) {
             ballPosX += ballVelX;
             ballPosY += ballVelY;         
         }
@@ -325,7 +346,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
                     // get question and answer from qs
                     String[] arr = qs.randomQuestion();
                     
-                    String userAnswer = JOptionPane.showInputDialog(this, arr[0]);
+                    String userAnswer = JOptionPane.showInputDialog(this, arr[0], "Question!", JOptionPane.QUESTION_MESSAGE);
                     
                     if (userAnswer == null) {
                          // show prompt
@@ -579,10 +600,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
         }
         if(go == 1 && e.getKeyCode() == KeyEvent.VK_ENTER && isNextLevel == 1){
             isNextLevel = 0;
-            newGame();
-            totalCorrectAnswers = 0; 
-            powerupsTaken = 0; 
-            questionsTaken = 0;              
+            newGame();              
         }else if(go == 0 && e.getKeyCode() == KeyEvent.VK_ENTER && isNextLevel == 1){
             System.exit(0);
         }        
@@ -618,6 +636,9 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     }    
     @Override
     public void mouseReleased(MouseEvent e) {
+        // disable popup menu in menu screens
+        if (isGameOver == 1 || isNextLevel == 1) return;
+        
         if (e.isPopupTrigger() ) {
             popupMenu.show(e.getComponent(), e.getX(), e.getY() );
         }    
@@ -706,7 +727,8 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         // don't move the paddle if game is not ongoing or if its not the correct paddle movement mode
-        if (!ongoing || paddleMovementMode != 1) return;             
+        // don't move if in a menu screen
+        if (!ongoing || paddleMovementMode != 1 || isGameOver == 1 || isNextLevel == 1) return;             
         
         // move the paddle depending on the direction the wheel was scrolled
         if (e.getWheelRotation() < 0) { // left paddle movement: scrolled negatively
