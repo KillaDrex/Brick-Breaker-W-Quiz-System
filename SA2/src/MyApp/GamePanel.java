@@ -46,7 +46,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     // paddle
     private final int INITIAL_PADDLE_WIDTH = 95;
     private int paddleWidth = INITIAL_PADDLE_WIDTH, paddleHeight = 15;
-    private final int INITIAL_PADDLE_X_VEL = 2, INITIAL_PADDLE_X_VEL_MWHEEL = 4; // default paddle change speeds
+    private final int INITIAL_PADDLE_X_VEL = 4, INITIAL_PADDLE_X_VEL_MWHEEL = 4; // default paddle change speeds
     private int paddleXVelChange = 2; // change in paddle speed using keys
     private int paddleXVelMWheelChange = 4; // change in paddle speed using the mouse wheel; had to add this for ease 
     
@@ -72,7 +72,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     // ball
     private final int INITIAL_BALL_RADIUS = 12;
-    private final int[] INITIAL_BALL_VEL = {1, -2}; // default ball speed
+    private final int[] INITIAL_BALL_VEL = {3, -8}; // default ball speed
     private int ballRadius = INITIAL_BALL_RADIUS;
     private int ballPosX, ballPosY; // center point of ball
     private int ballVelX = 0, ballVelY = 0; // velocity is tied to the game's redraw time
@@ -103,7 +103,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     
     // next level
     private int isNextLevel;
-    private int go;
+    private int go = 1;
     
     // popup menu
     private JPopupMenu popupMenu;
@@ -473,7 +473,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
             
             // update powerup's y value (only if the ball is engaged)
             if (ongoing)
-                pow.setY(pow.getY() + 3);
+                pow.setY(pow.getY() + 8);
             
             if (powRect.intersects(paddleRect) ) {
                 // increment for statistics
@@ -634,7 +634,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
    
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (!enableBrickGuide || isGameOver == 1) return;
+        if (!enableBrickGuide || isGameOver == 1 || isNextLevel == 1) return;
         
         brickText = "";
         
@@ -669,7 +669,7 @@ public class GamePanel extends javax.swing.JPanel implements ActionListener, Key
     }
     @Override
     public void mouseMoved(MouseEvent e) {
-        if (!enableBrickGuide || isGameOver == 1) return;
+        if (!enableBrickGuide || isGameOver == 1 || isNextLevel == 1) return;
         
         brickText = "";
         
