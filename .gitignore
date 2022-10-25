@@ -4,3 +4,6 @@ SA2/test/*
 SA2/build.xml
 SA2/manifest.xml
 /SA2/dist/
+/Main/nbproject/private/
+/Main/build/
+/sa2/nbproject/private/
